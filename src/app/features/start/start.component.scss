@@ -1,0 +1,29 @@
+.content{
+  background-color: black;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+
+  h2{
+    font-size: 48px;
+  }
+}
+
+main {
+  padding: 2rem;
+  border-style: solid;
+  border-radius: 0.5rem;
+  border-color: white;
+  max-width: 80%;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 22px;
+
+  input{
+    width: 70%;
+  }
+}
