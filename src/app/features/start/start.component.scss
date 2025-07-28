@@ -41,8 +41,9 @@ form{
   justify-content: space-between;
   align-items: baseline;
   gap: 16px;
+  position: relative;
 
-  @include respond-to(sm){
+  @include respond-to(md){
     flex-direction: column;
     align-items: stretch;
   }
@@ -79,6 +80,17 @@ form{
 
     &:hover {
       background-color: #1a644d;
+    }
+  }
+
+  .error{
+    color: rgb(229, 122, 122);
+    position: absolute;
+    top: 55px;
+    left: 230px;
+    font-size: 16px;
+    @include respond-to(md){
+      position: unset;
     }
   }
 }
