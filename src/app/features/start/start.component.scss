@@ -10,6 +10,9 @@
 
   h2{
     font-size: 48px;
+    text-align: center;
+    margin-left: 4px;
+    margin-right: 4px;
   }
 }
 
@@ -22,8 +25,42 @@ main {
   width: 100%;
   box-sizing: border-box;
   font-size: 22px;
+}
+
+form{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  column-gap: 16px;
+
 
   input{
-    width: 70%;
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    background-color: #2b2b2b;
+    color: #f0f0f0;
+    padding: 0.8rem 1rem;
+    font-size: 22px;
+    transition: border 0.2s ease;
+
+    &:focus{
+      border: 1px solid #cbcfcb;
+    }
+  }
+
+  button {
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    background-color: #2e9759;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #1a644d;
+    }
   }
 }
