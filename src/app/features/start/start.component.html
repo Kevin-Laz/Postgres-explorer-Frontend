@@ -9,9 +9,9 @@
         formControlName="connectionString"
         placeholder="postgresql://..."
       />
-      @if(dbForm.get('connectionString')?.invalid && dbForm.get('connectionString')?.touched){
+      @if(dbForm.get('connectionString')?.invalid && dbForm.get('connectionString')?.touched || mensageError){
         <label class="error">
-          Cadena de conexión inválida
+          {{mensageError}}
         </label>
       }
       <button type="submit">Conectar</button>
