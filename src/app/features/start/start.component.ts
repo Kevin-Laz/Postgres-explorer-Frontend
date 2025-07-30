@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatabaseService } from '../../core/services/database.service';
 import { Router } from '@angular/router';
+import { DatabaseContextService } from '../../core/services/database-context.service';
 
 @Component({
   selector: 'app-start',
@@ -12,7 +13,7 @@ import { Router } from '@angular/router';
 export class StartComponent {
   dbForm: FormGroup;
   mensageError = '';
-  constructor(private fb:FormBuilder, private dbService : DatabaseService, private router: Router){
+  constructor(private fb:FormBuilder, private dbService : DatabaseService, private router: Router, private dbContext: DatabaseContextService){
     this.dbForm = this.fb.group({
       connectionString: ['', [Validators.required, Validators.pattern(/^postgresql:\/\/.+$/)]]
     })
@@ -28,7 +29,7 @@ export class StartComponent {
     const connection = this.dbForm.value.connectionString;
     this.dbService.checkConnection(connection).subscribe({
       next: ()=>{
-        sessionStorage.setItem('databaseUrl', connection);
+        this.dbContext.setConnection(connection);
         this.router.navigate(['/dashboard']);
       },
       error: (error)=>{
