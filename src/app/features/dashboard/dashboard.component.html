@@ -1,1 +1,7 @@
-<p>dashboard works!</p>
+<div class="dashboard-shell">
+  <div class="sidebar-resizable" [ngStyle] = "{ width: sidebarWidth + 'px' }">
+    <app-sidebar></app-sidebar>
+    <div class="resizer" (mousedown)="startResizing($event)"></div>
+  </div>
+  <app-schema-view></app-schema-view>
+</div>
