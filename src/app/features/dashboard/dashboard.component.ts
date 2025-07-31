@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
-  sidebarWidth = 200;
+  sidebarWidth = 475;
   private isResizing = false;
 
   startResizing(event: MouseEvent){
@@ -22,7 +22,7 @@ export class DashboardComponent {
   onMouseMove(event: MouseEvent) {
     if (!this.isResizing) return;
     const newWidth = event.clientX;
-    if (newWidth >= 100 && newWidth <= 600) {
+    if (newWidth >= 300 && newWidth <= 800) {
       this.sidebarWidth = newWidth;
     }
   }

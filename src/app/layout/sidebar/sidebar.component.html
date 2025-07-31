@@ -1,3 +1,39 @@
-<div class="sidebar-content">
-  Sidebar
+<div class="sidebar-container">
+  <nav class="tabs">
+    <button [class.active]="activeTab === 'tools'" (click)="activeTab = 'tools'">
+      Herramientas
+    </button>
+    <button [class.active]="activeTab === 'sql'" (click)="activeTab = 'sql'">
+      Sql
+    </button>
+  </nav>
+
+  <div class="tab-content">
+      @if(activeTab === 'tools'){
+        <ng-container>
+          <ul class="tools-list">
+            <li>Tabla</li>
+            <li>Relacion</li>
+            <li>Clave</li>
+            <li>Restricción</li>
+            <li>Índice</li>
+          </ul>
+        </ng-container>
+      }
+      @else if(activeTab === 'sql'){
+        <ng-container>
+          <textarea class="sql-text"
+          placeholder="Escribe tu consulta SQL aquí..."
+          [(ngModel)]="sqlQuery">
+          </textarea>
+          <div class="sql-options">
+            <button>Ejecutar</button>
+            <button>Comentar</button>
+            <button>Deshacer</button>
+            <button>Limpiar</button>
+            <button>Recuperar</button>
+          </div>
+        </ng-container>
+      }
+    </div>
 </div>
