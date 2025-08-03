@@ -30,7 +30,6 @@
     &.active{
       border-bottom: 2px solid #838f8c;
       color: #838f8c;
-
     }
   }
 }
@@ -71,5 +70,64 @@
 
   .tools-list{
     list-style-type: none;
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    gap: 8px;
   }
+
+  .tool-item{
+    cursor: pointer;
+
+    &:hover{
+      scale: 105%;
+    }
+  }
+}
+
+.icon{
+  display: inline-block;
+  width: 90px;
+  height: 125px;
+  background-image: url('/icons_db.png');
+  background-repeat: no-repeat;
+  background-size: 512px 125px;
+
+  &-table{
+    background-position: 10px;
+  }
+
+  &-column{
+    background-position: -90px;
+  }
+
+  &-relationship{
+    background-position: -204px;
+  }
+
+  &-primary{
+    background-position: -312px;
+  }
+
+  &-constraint{
+    background-position: -425px;
+  }
+}
+
+.text-icon{
+  margin-top: -15px;
+  font-size: 12px;
+  color: gray;
+}
+
+.option{
+  &-tools{
+    display: flex;
+  }
+}
+
+.option-item{
+  width: 32px;
+  height: 32px;
+  text-align: center;
 }

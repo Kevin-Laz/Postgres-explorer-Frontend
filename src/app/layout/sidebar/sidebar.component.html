@@ -12,12 +12,36 @@
       @if(activeTab === 'tools'){
         <ng-container>
           <ul class="tools-list">
-            <li>Tabla</li>
-            <li>Relacion</li>
-            <li>Clave</li>
-            <li>Restricción</li>
-            <li>Índice</li>
+            <li class="tool-item">
+              <div class="icon icon-table"></div>
+              <div class="text-icon">Tabla</div>
+            </li>
+            <li class="tool-item">
+              <div class="icon icon-column"></div>
+              <div class="text-icon">Columna</div>
+            </li>
+            <li class="tool-item">
+              <div class="icon icon-relationship"></div>
+              <div class="text-icon">Relación</div>
+            </li>
+            <li class="tool-item">
+              <div class="icon icon-primary"></div>
+              <div class="text-icon">Clave</div>
+            </li>
+            <li class="tool-item">
+              <div class="icon icon-constraint"></div>
+              <div class="text-icon">Restricción</div>
+            </li>
           </ul>
+
+          <div class="option-tools">
+            <div class="option-item">Crear</div>
+            <div class="option-item">Editar</div>
+            <div class="option-item">Eliminar</div>
+            <div class="option-item">Duplicar</div>
+            <div class="option-item">Reordenar</div>
+            <div class="option-item">Detalles</div>
+          </div>
         </ng-container>
       }
       @else if(activeTab === 'sql'){
