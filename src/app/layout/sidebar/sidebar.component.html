@@ -12,36 +12,30 @@
       @if(activeTab === 'tools'){
         <ng-container>
           <ul class="tools-list">
-            <li class="tool-item">
-              <div class="icon icon-table"></div>
-              <div class="text-icon">Tabla</div>
-            </li>
-            <li class="tool-item">
-              <div class="icon icon-column"></div>
-              <div class="text-icon">Columna</div>
-            </li>
-            <li class="tool-item">
-              <div class="icon icon-relationship"></div>
-              <div class="text-icon">Relación</div>
-            </li>
-            <li class="tool-item">
-              <div class="icon icon-primary"></div>
-              <div class="text-icon">Clave</div>
-            </li>
-            <li class="tool-item">
-              <div class="icon icon-constraint"></div>
-              <div class="text-icon">Restricción</div>
-            </li>
+            @for(tool of toolsDB; track tool.name){
+              <li
+                class="tool-item"
+                [class.selected]="tool_selected === tool.name && isToolFixed"
+                (mouseenter)="previewTool(tool)"
+                (mouseleave)="clearOptions()"
+                (click)="selectTool(tool)"
+              >
+                <div class="icon" [ngClass]="tool.icon"></div>
+                <div class="text-icon">{{ tool.label }}</div>
+              </li>
+            }
           </ul>
 
-          <div class="option-tools">
-            <div class="option-item">Crear</div>
-            <div class="option-item">Editar</div>
-            <div class="option-item">Eliminar</div>
-            <div class="option-item">Duplicar</div>
-            <div class="option-item">Reordenar</div>
-            <div class="option-item">Detalles</div>
-          </div>
+          @if(options_active?.length){
+            <div class="option option-tools">
+              @for(option of options_active; track option.name){
+                <div class="option-container">
+                  <div class="option-item" [ngClass]="option.icon"></div>
+                  <div class="text-option">{{ option.name }}</div>
+                </div>
+              }
+            </div>
+          }
         </ng-container>
       }
       @else if(activeTab === 'sql'){
