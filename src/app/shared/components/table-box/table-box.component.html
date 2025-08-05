@@ -1,0 +1,14 @@
+<div class="table-box">
+  <header class="table-header">
+    <div class="table-name">{{table?.name || "Nueva Tabla" }}</div>
+  </header>
+
+  <body class="table-columns">
+    @for(col of table?.columns; track table?.name){
+      <div class="column-row">
+        <span class="column-name">{{col.name}}</span>
+        <span class="column-type">{{col.type}}</span>
+      </div>
+    }
+  </body>
+</div>
