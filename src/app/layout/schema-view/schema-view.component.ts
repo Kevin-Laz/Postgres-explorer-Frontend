@@ -40,32 +40,36 @@ export class SchemaViewComponent {
 
     // Hace focus en el input invisible
     setTimeout(() => {
-      this.hiddenInput.nativeElement.focus();
-      this.hiddenInput.nativeElement.select();
+      const input = this.hiddenInput.nativeElement;
+      input.focus();
+      const length = input.value.length;
+      input.setSelectionRange(length, length);
     });
   }
 
-  // Actualiza en tiempo real
-  onEditChange(event: Event) {
-    const newValue = (event.target as HTMLInputElement).value;
-    this.editingValue = newValue;
+  onEditChange(value: string) {
+    if (!this.editingTarget) return;
+    this.editingValue = value;
 
-    if (this.editingTarget) {
-      if (this.editingTarget.type === 'table') {
-        this.tableTemp.name = newValue;
-      } else if (this.editingTarget.index !== undefined) {
-        this.tableTemp.columns[this.editingTarget.index].name = newValue;
-      }
+    if (this.editingTarget.type === 'table') {
+      this.tableTemp.name = value;
+    } else if (this.editingTarget.index !== undefined) {
+      this.tableTemp.columns[this.editingTarget.index].name = value;
     }
   }
 
-   // Finaliza edición
-  finishEditing() {
+  onFinishEditing() {
     this.tableTest = structuredClone(this.tableTemp);
     this.editingTarget = null;
     this.editingValue = '';
-    this.hiddenInput.nativeElement.blur();
   }
+
+  onCancelEditing() {
+    this.editingTarget = null;
+    this.editingValue = '';
+    this.tableTemp = structuredClone(this.tableTest);
+  }
+
 
   // Cancela edición
   cancelEditing() {

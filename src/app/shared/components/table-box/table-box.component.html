@@ -1,21 +1,38 @@
 <div class="table-box">
   <header class="table-header">
     <div class="table-name" (dblclick)="requestTableEdit()">
-      {{ isEditing ? table?.name : (table?.name || 'NuevaTabla') }}
       @if(isEditing){
-        <span class="cursor-simulated"></span>
+        <input
+          #visibleInput
+          type="text"
+          [value]="table?.name"
+          (input)="onEditInput($event)"
+          (keydown)="onKeyDown($event)"
+        />
+      } @else {
+        {{ table?.name || 'NuevaTabla' }}
       }
     </div>
   </header>
 
   <body class="table-columns">
-    @for(col of table?.columns; let i = $index; track col?.name){
+    @for(col of table?.columns; let i = $index; track col.name){
       <div class="column-row" (dblclick)="requestColumnEdit(i)">
-        <div class="column-container-name" [class.editing]="isEditingCol === i">
-          <span class="column-name">{{col.name}}</span>
+        <div class="column-container-name">
+          @if(isEditingCol === i){
+            <input
+              #colInput
+              type="text"
+              [value]="col.name"
+              (input)="onEditInput($event)"
+              (keydown)="onKeyDown($event)"
+            />
+          } @else {
+            <span class="column-name">{{ col.name }}</span>
+          }
         </div>
         <div>
-          <span class="column-type">{{col.type}}</span>
+          <span class="column-type">{{ col.type }}</span>
         </div>
       </div>
     }

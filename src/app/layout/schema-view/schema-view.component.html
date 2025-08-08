@@ -1,21 +1,14 @@
-<div class="schema-content" (click)="cancelEditing()">
-  <app-table-box [table]="editingTarget ? tableTemp : tableTest"
+<div class="schema-content">
+  <app-table-box
+  [table]="editingTarget ? tableTemp : tableTest"
   (editRequest)="startEditing($event)"
+  (editChange)="onEditChange($event)"
+  (editFinish)="onFinishEditing()"
+  (editCancel)="onCancelEditing()"
   [isEditing]="editingTarget?.type === 'table'"
-  [isEditingCol]="editingTarget?.index ?? -1"></app-table-box>
+  [isEditingCol]="editingTarget?.index ?? -1"
+/>
 
 
 
-
-
-  <!-- Input invisible para capturar texto -->
-  <input
-    #hiddenInput
-    type="text"
-    [value]="editingValue"
-    (input)="onEditChange($event)"
-    (keydown.enter)="finishEditing()"
-    (keydown.escape)="cancelEditing()"
-    style="position: fixed; left: -9999px; opacity: 0;"
-  />
 </div>>

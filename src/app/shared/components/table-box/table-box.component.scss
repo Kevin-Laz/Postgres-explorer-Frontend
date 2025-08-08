@@ -29,6 +29,23 @@
       overflow: hidden;
       text-overflow: ellipsis;
       position: relative;
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.37;
+
+      input {
+        width: 100%;
+        border: none;
+        background: transparent;
+        font-size: inherit;
+        font-weight: inherit;
+        text-align: center;
+        outline: none;
+        line-height: inherit;
+        padding: 0;
+        margin: 0;
+      }
+
     }
   }
 
@@ -61,6 +78,15 @@
         position: relative;
         display: flex;
         align-items: center;
+
+        input {
+          width: 100%;
+          border: none;
+          background: transparent;
+          font-size: inherit;
+          font-family: inherit;
+          outline: none;
+        }
 
         &.editing::after{
           content: '';
@@ -102,3 +128,4 @@
     opacity: 0;
   }
 }
+
