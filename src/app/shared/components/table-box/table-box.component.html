@@ -10,7 +10,7 @@
           (keydown)="onKeyDown($event)"
         />
       } @else {
-        {{ table?.name || 'NuevaTabla' }}
+        <span class="table-name">{{ table?.name || 'NuevaTabla' }}</span>
       }
     </div>
   </header>

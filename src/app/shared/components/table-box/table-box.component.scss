@@ -25,15 +25,12 @@
     }
 
     .table-name{
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      position: relative;
-      font-size: 14px;
-      font-weight: 300;
+      font-size: inherit;
+      font-weight: inherit;
       line-height: 1.37;
 
       input {
+        font-family: 'Satoshi', sans-serif;
         width: 100%;
         border: none;
         background: transparent;
@@ -71,38 +68,24 @@
       }
 
       .column-container-name{
-        max-width: 100px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        position: relative;
-        display: flex;
         align-items: center;
 
         input {
+          font-family: 'Satoshi', sans-serif;
           width: 100%;
           border: none;
           background: transparent;
           font-size: inherit;
+          font-weight: inherit;
           font-family: inherit;
           outline: none;
-        }
-
-        &.editing::after{
-          content: '';
-          width: 1px;
-          height: 15px;
-          background-color: #7e7a7a;
-          animation: blink 1s step-start infinite;
-          margin-left: 0px;
+          line-height: inherit;
+          padding: 0;
+          margin: 0;
         }
       }
       .column-name {
-        flex-shrink: 1;
         min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
 
 

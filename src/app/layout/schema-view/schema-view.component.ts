@@ -37,14 +37,6 @@ export class SchemaViewComponent {
     } else if (data.type === 'column' && data.index !== undefined) {
       this.editingValue = this.tableTemp.columns[data.index].name;
     }
-
-    // Hace focus en el input invisible
-    setTimeout(() => {
-      const input = this.hiddenInput.nativeElement;
-      input.focus();
-      const length = input.value.length;
-      input.setSelectionRange(length, length);
-    });
   }
 
   onEditChange(value: string) {
@@ -70,11 +62,4 @@ export class SchemaViewComponent {
     this.tableTemp = structuredClone(this.tableTest);
   }
 
-
-  // Cancela edición
-  cancelEditing() {
-    this.editingTarget = null;
-    this.editingValue = '';
-    this.tableTemp = structuredClone(this.tableTest); // Descarta cambios
-  }
 }
