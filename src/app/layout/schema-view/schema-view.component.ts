@@ -62,4 +62,21 @@ export class SchemaViewComponent {
     this.tableTemp = structuredClone(this.tableTest);
   }
 
+
+  onMoveTable(pos: { x: number; y: number }) {
+    this.tableTemp.x = pos.x;
+    this.tableTemp.y = pos.y;
+
+    this.tableTest.x = this.tableTemp.x;
+    this.tableTest.y = this.tableTemp.y;
+  }
+
+  onResizeTable(newWidth: number) {
+    this.tableTest.width = Math.max(100, newWidth);
+
+    if (this.editingTarget?.type === 'table') {
+      this.tableTemp.width = this.tableTest.width;
+    }
+  }
+
 }

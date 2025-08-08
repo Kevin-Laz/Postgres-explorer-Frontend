@@ -12,10 +12,26 @@ export class TableBoxComponent {
   @Input() table: Table | null = null;
   @Input() isEditing = false;
   @Input() isEditingCol = -1;
+
+  @Input() x = 0;
+  @Input() y = 0;
+  @Input() width = 160;
+
+  @Output() positionChange = new EventEmitter<{ x: number; y: number }>();
+  @Output() widthChange = new EventEmitter<number>();
+
   @Output() editRequest = new EventEmitter<TableElement>();
   @Output() editChange = new EventEmitter<string>();
   @Output() editFinish = new EventEmitter<void>();
   @Output() editCancel = new EventEmitter<void>();
+
+  private isDragging = false;
+  private isResizing = false;
+  private startX = 0;
+  private startY = 0;
+  private initialWidth = 0;
+  private resizeStartX = 0;
+
 
   @ViewChild('visibleInput') visibleInput!: ElementRef<HTMLInputElement>;
   @ViewChild('colInput') colInput!: ElementRef<HTMLInputElement>;
@@ -54,5 +70,45 @@ export class TableBoxComponent {
     } else if (event.key === 'Escape') {
       this.editCancel.emit();
     }
+  }
+
+  //Mover tabla
+  onMouseDown(event: MouseEvent) {
+    this.isDragging = true;
+    this.startX = event.clientX - this.x;
+    this.startY = event.clientY - this.y;
+
+    document.addEventListener('mousemove', this.onMouseMove);
+    document.addEventListener('mouseup', this.onMouseUp);
+  }
+
+  onMouseMove = (event: MouseEvent) => {
+    if (this.isDragging) {
+      const newX = event.clientX - this.startX;
+      const newY = event.clientY - this.startY;
+      this.positionChange.emit({ x: newX, y: newY });
+    } else if (this.isResizing) {
+      const delta = event.clientX - this.resizeStartX;
+      const newWidth = this.initialWidth + delta;
+      this.widthChange.emit(newWidth);
+    }
+  };
+
+  onMouseUp = () => {
+    this.isDragging = false;
+    this.isResizing = false;
+    document.removeEventListener('mousemove', this.onMouseMove);
+    document.removeEventListener('mouseup', this.onMouseUp);
+  };
+
+
+  startResize(event: MouseEvent) {
+    this.isResizing = true;
+    this.initialWidth = this.width;
+    this.resizeStartX = event.clientX;
+    event.stopPropagation();
+    event.preventDefault();
+    document.addEventListener('mousemove', this.onMouseMove);
+    document.addEventListener('mouseup', this.onMouseUp);
   }
 }

@@ -1,4 +1,6 @@
-<div class="table-box">
+<div class="table-box"
+[ngStyle]="{ left: x + 'px', top: y + 'px', width: width + 'px' }"
+(mousedown)="onMouseDown($event)">
   <header class="table-header">
     <div class="table-name" (dblclick)="requestTableEdit()">
       @if(isEditing){
@@ -37,4 +39,6 @@
       </div>
     }
   </body>
+
+  <div class="resize-handle" (mousedown)="startResize($event)"></div>
 </div>

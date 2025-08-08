@@ -1,6 +1,11 @@
 <div class="schema-content">
   <app-table-box
   [table]="editingTarget ? tableTemp : tableTest"
+  [x]="tableTemp.x || 0"
+  [y]="tableTemp.y || 0"
+  [width]="(editingTarget ? tableTemp : tableTest).width || 160"
+  (positionChange)="onMoveTable($event)"
+  (widthChange)="onResizeTable($event)"
   (editRequest)="startEditing($event)"
   (editChange)="onEditChange($event)"
   (editFinish)="onFinishEditing()"

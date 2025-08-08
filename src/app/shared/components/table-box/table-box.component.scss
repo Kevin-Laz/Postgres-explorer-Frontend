@@ -1,11 +1,26 @@
 .table-box{
-  width: 160px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: box-shadow 0.2s;
+  user-select: none;
   border: 1px solid #ccc;
   border-radius: 6px;
   background-color: #fff;
-  box-shadow: 2px 2px 8px rgba(0,0,0.05);
-  //cursor: move;
-  user-select: none;
+
+  &:hover {
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .resize-handle {
+    width: 10px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: ew-resize;
+    z-index: 10;
+  }
 
   .table-header{
     background-color: #f4f4f4;
