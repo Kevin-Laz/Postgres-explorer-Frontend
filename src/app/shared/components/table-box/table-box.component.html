@@ -12,7 +12,7 @@
           (keydown)="onKeyDown($event)"
         />
       } @else {
-        <span class="table-name">{{ table?.name || 'NuevaTabla' }}</span>
+        <span class="table-name" [ngStyle]="{ maxWidth: width + 'px'}">{{ table?.name || 'NuevaTabla' }}</span>
       }
     </div>
   </header>
@@ -20,7 +20,7 @@
   <body class="table-columns">
     @for(col of table?.columns; let i = $index; track col.name){
       <div class="column-row" (dblclick)="requestColumnEdit(i)">
-        <div class="column-container-name">
+        <div class="column-container-name" [ngStyle]="{ maxWidth: width - 50 + 'px'}">
           @if(isEditingCol === i){
             <input
               #colInput
@@ -30,7 +30,7 @@
               (keydown)="onKeyDown($event)"
             />
           } @else {
-            <span class="column-name">{{ col.name }}</span>
+            <span class="column-name" [ngStyle]="{ maxWidth: width -50 + 'px'}">{{ col.name }}</span>
           }
         </div>
         <div>

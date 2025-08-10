@@ -43,6 +43,10 @@
       font-size: inherit;
       font-weight: inherit;
       line-height: 1.37;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
 
       input {
         font-family: 'Satoshi', sans-serif;
@@ -84,6 +88,7 @@
 
       .column-container-name{
         align-items: center;
+        flex: 1;
 
         input {
           font-family: 'Satoshi', sans-serif;
@@ -101,6 +106,10 @@
       }
       .column-name {
         min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
       }
 
 

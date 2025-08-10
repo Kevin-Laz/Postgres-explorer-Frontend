@@ -73,10 +73,7 @@ export class SchemaViewComponent {
 
   onResizeTable(newWidth: number) {
     this.tableTest.width = Math.max(100, newWidth);
-
-    if (this.editingTarget?.type === 'table') {
-      this.tableTemp.width = this.tableTest.width;
-    }
+    this.tableTemp.width = this.tableTest.width;
   }
 
 }
