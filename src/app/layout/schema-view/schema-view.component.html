@@ -1,19 +1,19 @@
-<div class="schema-content">
+<div class="schema-content" #canvas>
   <app-table-box
   [table]="editingTarget ? tableTemp : tableTest"
   [x]="tableTemp.x || 0"
   [y]="tableTemp.y || 0"
   [width]="(editingTarget ? tableTemp : tableTest).width || 160"
+  [isOutside]="isOutside"
+  (metricsChange)="onBoxMetrics($event)"
   (positionChange)="onMoveTable($event)"
   (widthChange)="onResizeTable($event)"
   (editRequest)="startEditing($event)"
   (editChange)="onEditChange($event)"
   (editFinish)="onFinishEditing()"
   (editCancel)="onCancelEditing()"
+  (dragEnd)="onDragEnd()"
   [isEditing]="editingTarget?.type === 'table'"
   [isEditingCol]="editingTarget?.index ?? -1"
 />
-
-
-
 </div>>

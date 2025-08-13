@@ -1,4 +1,7 @@
-<div class="table-box"
+<div
+#root
+class="table-box"
+[class.outside]="isOutside"
 [ngStyle]="{ left: x + 'px', top: y + 'px', width: width + 'px' }"
 (mousedown)="onMouseDown($event)">
   <header class="table-header">

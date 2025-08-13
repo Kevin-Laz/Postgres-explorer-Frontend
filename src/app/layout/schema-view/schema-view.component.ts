@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
 import { Table, TableElement } from '../../data/interface/table.interface';
 
@@ -8,7 +8,10 @@ import { Table, TableElement } from '../../data/interface/table.interface';
   templateUrl: './schema-view.component.html',
   styleUrl: './schema-view.component.scss'
 })
-export class SchemaViewComponent {
+export class SchemaViewComponent implements AfterViewInit{
+
+  @ViewChild('canvas') canvasRef!: ElementRef<HTMLDivElement>;
+
   tableTest: Table = {name: 'test',
     columns: [
       {
@@ -26,7 +29,41 @@ export class SchemaViewComponent {
   editingValue = '';
   editingTarget: TableElement | null = null;
 
-  @ViewChild('hiddenInput') hiddenInput!: ElementRef<HTMLInputElement>;
+  // límites canvas
+  private canvasW = 0;
+  private canvasH = 0;
+
+  // medidas reales del box
+  private boxWidth = this.tableTemp.width ?? 160;
+  private boxHeight = 0;
+
+  private lastValidPos = { x: this.tableTemp.x ?? 0, y: this.tableTemp.y ?? 0 };
+
+  // feedback visual
+  isOutside = false;
+
+  ngAfterViewInit() {
+    this.updateCanvasSize();
+
+    // sidebar cambia de ancho asi que se sigue el tamaño del squema
+    const ro = new ResizeObserver(() => this.updateCanvasSize());
+    ro.observe(this.canvasRef.nativeElement);
+
+    // por si cambia el viewport
+    window.addEventListener('resize', this.updateCanvasSize);
+  }
+
+  updateCanvasSize = () => {
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+    this.canvasW = rect.width;
+    this.canvasH = rect.height;
+  };
+
+  // El hijo manda altura/anchura reales
+  onBoxMetrics(m: { width: number; height: number }) {
+    this.boxWidth  = m.width;
+    this.boxHeight = m.height;
+  }
 
   // Comienza la edición
   startEditing(data: TableElement) {
@@ -64,16 +101,41 @@ export class SchemaViewComponent {
 
 
   onMoveTable(pos: { x: number; y: number }) {
+    //Verificar si esta fuera del rango
+    const out =
+      pos.x < 0 ||
+      pos.y < 0 ||
+      pos.x + this.boxWidth  > this.canvasW ||
+      pos.y + this.boxHeight > this.canvasH;
+
+    this.isOutside = out;
+
     this.tableTemp.x = pos.x;
     this.tableTemp.y = pos.y;
 
-    this.tableTest.x = this.tableTemp.x;
-    this.tableTest.y = this.tableTemp.y;
+    this.tableTest.x = pos.x;
+    this.tableTest.y = pos.y;
+
+    if (!out) {
+      this.lastValidPos = { x: pos.x, y: pos.y };
+    }
   }
 
   onResizeTable(newWidth: number) {
     this.tableTest.width = Math.max(100, newWidth);
     this.tableTemp.width = this.tableTest.width;
   }
+
+  onDragEnd() {
+    if (this.isOutside) {
+      // volver a la última posición válida
+      this.tableTemp.x = this.lastValidPos.x;
+      this.tableTemp.y = this.lastValidPos.y;
+      this.tableTest.x = this.lastValidPos.x;
+      this.tableTest.y = this.lastValidPos.y;
+      this.isOutside = false;
+    }
+  }
+
 
 }

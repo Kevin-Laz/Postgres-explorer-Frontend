@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Table, TableElement } from '../../../data/interface/table.interface';
 import { CommonModule } from '@angular/common';
 
@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './table-box.component.html',
   styleUrl: './table-box.component.scss'
 })
-export class TableBoxComponent {
+export class TableBoxComponent implements AfterViewInit{
   @Input() table: Table | null = null;
   @Input() isEditing = false;
   @Input() isEditingCol = -1;
@@ -16,14 +16,20 @@ export class TableBoxComponent {
   @Input() x = 0;
   @Input() y = 0;
   @Input() width = 160;
+  @Input() isOutside = false;
 
   @Output() positionChange = new EventEmitter<{ x: number; y: number }>();
   @Output() widthChange = new EventEmitter<number>();
-
+  @Output() metricsChange = new EventEmitter<{ width: number; height: number }>(); // ← tamaño real
   @Output() editRequest = new EventEmitter<TableElement>();
   @Output() editChange = new EventEmitter<string>();
   @Output() editFinish = new EventEmitter<void>();
   @Output() editCancel = new EventEmitter<void>();
+  @Output() dragEnd = new EventEmitter<void>();
+
+  @ViewChild('root') rootRef!: ElementRef<HTMLDivElement>;
+  @ViewChild('visibleInput') visibleInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('colInput') colInput!: ElementRef<HTMLInputElement>;
 
   private isDragging = false;
   private isResizing = false;
@@ -32,9 +38,22 @@ export class TableBoxComponent {
   private initialWidth = 0;
   private resizeStartX = 0;
 
+  ngAfterViewInit(): void {
+    this.emitMetrics();
+  }
 
-  @ViewChild('visibleInput') visibleInput!: ElementRef<HTMLInputElement>;
-  @ViewChild('colInput') colInput!: ElementRef<HTMLInputElement>;
+  private emitMetrics() {
+    const el = this.rootRef?.nativeElement;
+    if (!el) return;
+    // altura real
+    this.metricsChange.emit({ width: el.offsetWidth, height: el.offsetHeight });
+  }
+
+  // llamados cuando cambie el ancho
+  private scheduleEmitMetrics() {
+    // esperar al reflow
+    setTimeout(() => this.emitMetrics());
+  }
 
   // Emitir solicitud de edición
   requestTableEdit() {
@@ -91,14 +110,19 @@ export class TableBoxComponent {
       const delta = event.clientX - this.resizeStartX;
       const newWidth = this.initialWidth + delta;
       this.widthChange.emit(newWidth);
+      this.scheduleEmitMetrics();
     }
   };
 
   onMouseUp = () => {
+    const wasDragging = this.isDragging;
     this.isDragging = false;
     this.isResizing = false;
     document.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('mouseup', this.onMouseUp);
+    if (wasDragging) {
+    this.dragEnd.emit();   // avisa al padre que se soltó el mouse
+  }
   };
 
 

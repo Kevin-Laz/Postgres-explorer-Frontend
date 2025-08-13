@@ -7,6 +7,11 @@
   border: 1px solid #ccc;
   border-radius: 6px;
   background-color: #fff;
+  transition: left .12s ease, top .12s ease, box-shadow .2s;
+
+  &.outside {
+    opacity: .4;
+  }
 
   &:hover {
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
