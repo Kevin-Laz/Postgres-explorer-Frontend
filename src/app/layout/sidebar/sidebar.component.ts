@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Tool, ToolOption, TOOLS } from '../../data/interface/tool.interface';
+import { EventOption, Tool, ToolOption, TOOLS } from '../../data/interface/tool.interface';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,7 +11,7 @@ import { Tool, ToolOption, TOOLS } from '../../data/interface/tool.interface';
 })
 export class SidebarComponent {
 
-  @Output() actionSelected = new EventEmitter<string>();
+  @Output() actionSelected = new EventEmitter<EventOption>();
   activeTab = 'sql';
   sqlQuery = '';
 
@@ -52,10 +52,10 @@ export class SidebarComponent {
     }
   }
 
-  onClickOption(optionAction: string){
+  onClickOption(evt: EventOption){
     //Verificar tool y option
     if(!this.tool_selected) return;
-    this.actionSelected.emit(optionAction)
+    this.actionSelected.emit(evt)
   }
 
 

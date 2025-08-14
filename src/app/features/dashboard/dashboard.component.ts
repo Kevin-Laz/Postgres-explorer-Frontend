@@ -4,6 +4,7 @@ import { SchemaViewComponent } from '../../layout/schema-view/schema-view.compon
 import { CommonModule } from '@angular/common';
 import { Table } from '../../data/interface/table.interface';
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
+import { EventOption } from '../../data/interface/tool.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,14 +12,12 @@ import { TableBoxComponent } from '../../shared/components/table-box/table-box.c
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent {
+export class DashboardComponent{
   @ViewChild('schema', { read: SchemaViewComponent }) schemaView!: SchemaViewComponent;
   @ViewChild('schema', { read: ElementRef }) schemaElRef!: ElementRef<HTMLElement>;
-  @ViewChild('dashboardRoot', { read: ElementRef }) rootRef!: ElementRef<HTMLElement>;
 
   sidebarWidth = 475;
   private isResizing = false;
-
   ghost: {
     active: boolean;
     x: number;
@@ -56,19 +55,19 @@ export class DashboardComponent {
 
   //tabla temporal
 
-  onSidebarAction(evt:string){
-    console.log(evt);
-    if(evt === 'createTable'){
-      this.startGhost();
+  onSidebarAction(evt: EventOption){
+    if(evt.action === 'createTable'){
+      if(this.ghost.active) return;
+      this.startGhost(evt.evento.clientX, evt.evento.clientY);
     }
   }
 
-  startGhost() {
+  startGhost(x:number, y:number) {
     // posición relativa al dashboard
     this.ghost = {
       active: true,
-      x: 0,
-      y: 0,
+      x: x | 0,
+      y: y | 0,
       width: 160,
       table: { name: 'NuevaTabla', columns: [{ name: 'col1', type: 'str' }] },
       overSchema: false
@@ -101,7 +100,6 @@ export class DashboardComponent {
 
   onMouseDownTable(ev: MouseEvent) {
     if (!this.ghost.active) return;
-
     // IZQUIERDO: crear si está sobre el schema
     if (ev.button === 0) {
       if (this.ghost.overSchema) {
@@ -117,7 +115,7 @@ export class DashboardComponent {
     // DERECHO: cancelar creación
     if (ev.button === 2) {
       ev.preventDefault();
-      this.cancelGhost();
+      ev.stopPropagation();
     }
   }
 
@@ -129,8 +127,10 @@ export class DashboardComponent {
   onContextMenu(ev: MouseEvent) {
     if (this.ghost.active) {
       ev.preventDefault();
+      ev.stopPropagation();
       this.cancelGhost();
+      return false; // algunos navegadores requieren un booleano para evitar el comportamiento por defecto
     }
+    return true;
   }
-
 }

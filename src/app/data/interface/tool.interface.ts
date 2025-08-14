@@ -11,6 +11,11 @@ export interface Tool{
   options: ToolOption[];
 }
 
+export interface EventOption{
+  action: string;
+  evento: MouseEvent;
+}
+
 export const TOOLS: Tool[] = [
     {
       name: 'tabla',
