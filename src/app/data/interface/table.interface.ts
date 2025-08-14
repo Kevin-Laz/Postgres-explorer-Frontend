@@ -13,3 +13,12 @@ export interface TableElement{
   type: 'table' | 'column'; index?: number
 }
 
+export interface Pos{
+  x: number;
+  y: number;
+}
+
+export interface Size{
+  width: number;
+  height: number;
+}

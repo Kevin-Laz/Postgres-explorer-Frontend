@@ -29,7 +29,7 @@
           @if(options_active?.length){
             <div class="option option-tools">
               @for(option of options_active; track option.name){
-                <div class="option-container">
+                <div class="option-container" (click)="onClickOption(option.action)">
                   <div class="option-item" [ngClass]="option.icon"></div>
                   <div class="text-option">{{ option.name }}</div>
                 </div>

@@ -1,6 +1,6 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
-import { Table, TableElement } from '../../data/interface/table.interface';
+import { Pos, Size, Table, TableElement } from '../../data/interface/table.interface';
 
 @Component({
   selector: 'app-schema-view',
@@ -12,35 +12,52 @@ export class SchemaViewComponent implements AfterViewInit{
 
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLDivElement>;
 
-  tableTest: Table = {name: 'test',
-    columns: [
-      {
-        name: 'col1',
-        type: 'str'
-      },
-      {
-        name: 'col2',
-        type: 'str'
-      }
-    ]
+  @Input() createIntent: { tool: 'table' } | null = null;
+  @Output() createConsumed = new EventEmitter<void>();
+
+  tables: Table[] = [
+    { name: 'test', columns: [{ name: 'col1', type: 'str' }, { name: 'col2', type: 'str' }], x: 80, y: 60, width: 160 },
+    { name: 'test2', columns: [{ name: 'col1', type: 'str' }, { name: 'col2', type: 'str' }], x: 0, y: 0, width: 160 }
+  ];
+
+  //crea tabla en (x,y) relativos al schema
+  placeNewTableAt(pos: { x: number; y: number; width?: number; name?: string }) {
+    const width = Math.max(120, Math.min(pos.width ?? 160, this.canvasW - 16));
+    const heightEstimate = 100;
+
+    const x = Math.min(Math.max(pos.x, 0), Math.max(0, this.canvasW - width));
+    const y = Math.min(Math.max(pos.y, 0), Math.max(0, this.canvasH - heightEstimate));
+
+    this.tables.push({
+      name: pos.name ?? 'NuevaTabla',
+      columns: [{ name: 'col1', type: 'str' }],
+      x, y, width
+    });
   }
 
-  tableTemp: Table = structuredClone(this.tableTest);
-  editingValue = '';
-  editingTarget: TableElement | null = null;
 
-  // límites canvas
+  // Estado de edición
+  editingTableIndex: number | null = null;
+  editingTarget: TableElement | null = null;
+  editingValue = '';
+
+  // Límites canvas
   private canvasW = 0;
   private canvasH = 0;
 
-  // medidas reales del box
-  private boxWidth = this.tableTemp.width ?? 160;
-  private boxHeight = 0;
+   // Medidas reales por tabla (offsetWidth/offsetHeight)
+  private boxSizes: Record<number, Size> = {};
 
-  private lastValidPos = { x: this.tableTemp.x ?? 0, y: this.tableTemp.y ?? 0 };
+  // Última posición válida por tabla (para snap back)
+  private lastValidPos: Record<number, Pos> = {};
 
-  // feedback visual
-  isOutside = false;
+  // Flags de "fuera del canvas" por tabla (para opacidad)
+  outsideFlags: Record<number, boolean> = {};
+
+  // ghost state
+  creating = false;
+  ghost = { x: 0, y: 0, width: 160, height: 80 };
+  ghostOutside = false;
 
   ngAfterViewInit() {
     this.updateCanvasSize();
@@ -48,9 +65,13 @@ export class SchemaViewComponent implements AfterViewInit{
     // sidebar cambia de ancho asi que se sigue el tamaño del squema
     const ro = new ResizeObserver(() => this.updateCanvasSize());
     ro.observe(this.canvasRef.nativeElement);
-
     // por si cambia el viewport
     window.addEventListener('resize', this.updateCanvasSize);
+
+    // Inicializa lastValidPos para las tablas existentes
+    this.tables.forEach((t, i) => {
+      this.lastValidPos[i] = { x: t.x ?? 0, y: t.y ?? 0 };
+    });
   }
 
   updateCanvasSize = () => {
@@ -59,83 +80,91 @@ export class SchemaViewComponent implements AfterViewInit{
     this.canvasH = rect.height;
   };
 
-  // El hijo manda altura/anchura reales
-  onBoxMetrics(m: { width: number; height: number }) {
-    this.boxWidth  = m.width;
-    this.boxHeight = m.height;
+  // Actualiza el tamaño real de cada Tabla
+  onBoxMetrics(index: number, m: Size) {
+    this.boxSizes[index] = m;
+    // Si no tenías lastValidPos para este índice, inicialízalo
+    if (!this.lastValidPos[index]) {
+      const t = this.tables[index];
+      this.lastValidPos[index] = { x: t.x ?? 0, y: t.y ?? 0 };
+    }
   }
 
   // Comienza la edición
-  startEditing(data: TableElement) {
+  startEditing(tableIndex: number, data: TableElement) {
+    this.editingTableIndex = tableIndex;
     this.editingTarget = data;
-    this.tableTemp = structuredClone(this.tableTest);
+    const table = this.tables[tableIndex];
+
     if (data.type === 'table') {
-      this.editingValue = this.tableTemp.name;
+      this.editingValue = table.name;
     } else if (data.type === 'column' && data.index !== undefined) {
-      this.editingValue = this.tableTemp.columns[data.index].name;
+      this.editingValue = table.columns[data.index].name;
     }
   }
 
   onEditChange(value: string) {
-    if (!this.editingTarget) return;
+    if (this.editingTableIndex === null || !this.editingTarget) return;
+
+    const table = this.tables[this.editingTableIndex];
     this.editingValue = value;
 
     if (this.editingTarget.type === 'table') {
-      this.tableTemp.name = value;
+      table.name = value;
     } else if (this.editingTarget.index !== undefined) {
-      this.tableTemp.columns[this.editingTarget.index].name = value;
+      table.columns[this.editingTarget.index].name = value;
     }
   }
 
   onFinishEditing() {
-    this.tableTest = structuredClone(this.tableTemp);
+    this.editingTableIndex = null;
     this.editingTarget = null;
     this.editingValue = '';
   }
 
   onCancelEditing() {
+    this.editingTableIndex = null;
     this.editingTarget = null;
     this.editingValue = '';
-    this.tableTemp = structuredClone(this.tableTest);
   }
 
-
-  onMoveTable(pos: { x: number; y: number }) {
-    //Verificar si esta fuera del rango
+  // Drag: permite salir, marca "outside" y guarda última posición válida por tabla
+  onMoveTable(index: number, proposed: Pos) {
+    const size = this.boxSizes[index] ?? { width: this.tables[index].width ?? 160, height: 100 };
     const out =
-      pos.x < 0 ||
-      pos.y < 0 ||
-      pos.x + this.boxWidth  > this.canvasW ||
-      pos.y + this.boxHeight > this.canvasH;
+      proposed.x < 0 ||
+      proposed.y < 0 ||
+      (proposed.x + size.width)  > this.canvasW ||
+      (proposed.y + size.height) > this.canvasH;
 
-    this.isOutside = out;
+    this.outsideFlags[index] = out;
 
-    this.tableTemp.x = pos.x;
-    this.tableTemp.y = pos.y;
+    // Mueve libremente
+    this.tables[index].x = proposed.x;
+    this.tables[index].y = proposed.y;
 
-    this.tableTest.x = pos.x;
-    this.tableTest.y = pos.y;
-
+    // Si está dentro, actualiza la última posición válida
     if (!out) {
-      this.lastValidPos = { x: pos.x, y: pos.y };
+      this.lastValidPos[index] = { x: proposed.x, y: proposed.y };
     }
   }
 
-  onResizeTable(newWidth: number) {
-    this.tableTest.width = Math.max(100, newWidth);
-    this.tableTemp.width = this.tableTest.width;
+  onResizeTable(index: number, newWidth: number) {
+    const minW = 100;
+    const maxW = Math.max(200, this.canvasW - 16);
+    const width = Math.min(Math.max(newWidth, minW), maxW);
+
+    this.tables[index].width = width;
   }
 
-  onDragEnd() {
-    if (this.isOutside) {
-      // volver a la última posición válida
-      this.tableTemp.x = this.lastValidPos.x;
-      this.tableTemp.y = this.lastValidPos.y;
-      this.tableTest.x = this.lastValidPos.x;
-      this.tableTest.y = this.lastValidPos.y;
-      this.isOutside = false;
+  // Al soltar el mouse: si estaba fuera, vuelve a su última posición válida
+  onDragEnd(index: number) {
+    if (this.outsideFlags[index]) {
+      const last = this.lastValidPos[index] ?? { x: 0, y: 0 };
+      this.tables[index].x = last.x;
+      this.tables[index].y = last.y;
+      this.outsideFlags[index] = false;
     }
   }
-
 
 }

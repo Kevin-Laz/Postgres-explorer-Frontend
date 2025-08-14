@@ -1,19 +1,25 @@
 <div class="schema-content" #canvas>
-  <app-table-box
-  [table]="editingTarget ? tableTemp : tableTest"
-  [x]="tableTemp.x || 0"
-  [y]="tableTemp.y || 0"
-  [width]="(editingTarget ? tableTemp : tableTest).width || 160"
-  [isOutside]="isOutside"
-  (metricsChange)="onBoxMetrics($event)"
-  (positionChange)="onMoveTable($event)"
-  (widthChange)="onResizeTable($event)"
-  (editRequest)="startEditing($event)"
-  (editChange)="onEditChange($event)"
-  (editFinish)="onFinishEditing()"
-  (editCancel)="onCancelEditing()"
-  (dragEnd)="onDragEnd()"
-  [isEditing]="editingTarget?.type === 'table'"
-  [isEditingCol]="editingTarget?.index ?? -1"
-/>
+  @for(t of tables; let i = $index; track i){
+    <app-table-box
+      [table]="t"
+      [x]="t.x || 0"
+      [y]="t.y || 0"
+      [width]="t.width || 160"
+
+      (metricsChange)="onBoxMetrics(i, $event)"
+      (positionChange)="onMoveTable(i, $event)"
+      (widthChange)="onResizeTable(i, $event)"
+      (dragEnd)="onDragEnd(i)"
+
+      (editRequest)="startEditing(i, $event)"
+      (editChange)="onEditChange($event)"
+      (editFinish)="onFinishEditing()"
+      (editCancel)="onCancelEditing()"
+
+      [isEditing]="editingTableIndex === i && editingTarget?.type === 'table'"
+      [isEditingCol]="editingTableIndex === i && editingTarget?.type === 'column' ? (editingTarget?.index ?? -1) : -1"
+
+      [isOutside]="outsideFlags[i] === true"
+    />
+  }
 </div>>

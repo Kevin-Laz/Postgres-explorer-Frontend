@@ -1,7 +1,18 @@
-<div class="dashboard-shell">
+<div class="dashboard-shell" (mousemove)="onMouseMoveTable($event)" (mousedown)="onMouseDownTable($event)">
   <div class="sidebar-resizable" [ngStyle] = "{ width: sidebarWidth + 'px' }">
-    <app-sidebar></app-sidebar>
+    <app-sidebar (actionSelected)="onSidebarAction($event)"></app-sidebar>
     <div class="resizer" (mousedown)="startResizing($event)"></div>
   </div>
-  <app-schema-view></app-schema-view>
+  <app-schema-view #schema></app-schema-view>
+
+  @if(ghost.active){
+    <app-table-box
+      [table]="ghost.table"
+      [x]="ghost.x"
+      [y]="ghost.y"
+      [width]="ghost.width"
+      [disabled]="true"
+      [isOutside]="!ghost.overSchema"
+    />
+  }
 </div>

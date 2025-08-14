@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Tool, ToolOption, TOOLS } from '../../data/interface/tool.interface';
 
@@ -10,6 +10,8 @@ import { Tool, ToolOption, TOOLS } from '../../data/interface/tool.interface';
   styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
+
+  @Output() actionSelected = new EventEmitter<string>();
   activeTab = 'sql';
   sqlQuery = '';
 
@@ -49,5 +51,12 @@ export class SidebarComponent {
       this.options_active = null;
     }
   }
+
+  onClickOption(optionAction: string){
+    //Verificar tool y option
+    if(!this.tool_selected) return;
+    this.actionSelected.emit(optionAction)
+  }
+
 
 }

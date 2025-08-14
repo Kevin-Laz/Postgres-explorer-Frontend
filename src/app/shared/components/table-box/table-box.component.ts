@@ -17,6 +17,7 @@ export class TableBoxComponent implements AfterViewInit{
   @Input() y = 0;
   @Input() width = 160;
   @Input() isOutside = false;
+  @Input() disabled = false;      // desactiva interacciones (drag/resize/editar)
 
   @Output() positionChange = new EventEmitter<{ x: number; y: number }>();
   @Output() widthChange = new EventEmitter<number>();
@@ -57,6 +58,7 @@ export class TableBoxComponent implements AfterViewInit{
 
   // Emitir solicitud de edición
   requestTableEdit() {
+    if (this.disabled) return;
     this.editRequest.emit({ type: 'table' });
 
     setTimeout(() => {
@@ -68,6 +70,7 @@ export class TableBoxComponent implements AfterViewInit{
   }
 
   requestColumnEdit(index: number) {
+    if (this.disabled) return;
     this.editRequest.emit({ type: 'column', index });
 
     setTimeout(() => {
@@ -79,11 +82,13 @@ export class TableBoxComponent implements AfterViewInit{
   }
 
   onEditInput(event: Event) {
+    if (this.disabled) return;
     const newValue = (event.target as HTMLInputElement).value;
     this.editChange.emit(newValue);
   }
 
   onKeyDown(event: KeyboardEvent) {
+    if (this.disabled) return;
     if (event.key === 'Enter') {
       this.editFinish.emit();
     } else if (event.key === 'Escape') {
@@ -93,6 +98,7 @@ export class TableBoxComponent implements AfterViewInit{
 
   //Mover tabla
   onMouseDown(event: MouseEvent) {
+    if (this.disabled) return;
     this.isDragging = true;
     this.startX = event.clientX - this.x;
     this.startY = event.clientY - this.y;
@@ -102,6 +108,7 @@ export class TableBoxComponent implements AfterViewInit{
   }
 
   onMouseMove = (event: MouseEvent) => {
+    if (this.disabled) return;
     if (this.isDragging) {
       const newX = event.clientX - this.startX;
       const newY = event.clientY - this.startY;
@@ -127,6 +134,7 @@ export class TableBoxComponent implements AfterViewInit{
 
 
   startResize(event: MouseEvent) {
+    if (this.disabled) return;
     this.isResizing = true;
     this.initialWidth = this.width;
     this.resizeStartX = event.clientX;
