@@ -1,4 +1,4 @@
-<div class="dashboard-shell" (mousemove)="onMouseMoveTable($event)" (mousedown)="onMouseDownTable($event)" (contextmenu)="onContextMenu($event)">
+<div #root class="dashboard-shell" (mousemove)="onMouseMoveTable($event)" (mousedown)="onMouseDownTable($event)" (contextmenu)="onContextMenu($event)">
   <div class="sidebar-resizable" [ngStyle] = "{ width: sidebarWidth + 'px' }">
     <app-sidebar (actionSelected)="onSidebarAction($event)"></app-sidebar>
     <div class="resizer" (mousedown)="startResizing($event)"></div>

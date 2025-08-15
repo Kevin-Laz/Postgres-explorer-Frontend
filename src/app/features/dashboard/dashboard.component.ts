@@ -4,7 +4,9 @@ import { SchemaViewComponent } from '../../layout/schema-view/schema-view.compon
 import { CommonModule } from '@angular/common';
 import { Table } from '../../data/interface/table.interface';
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
-import { EventOption } from '../../data/interface/tool.interface';
+import { EventOption, EventOptionWithTool } from '../../data/interface/tool.interface';
+import { isTableCreate, mapSidebarToCommand, ToolCommand } from '../../core/actions/tool.actions';
+import { centerUnderCursor, isInsideElement, snapToGrid, toElementCoords } from '../../core/utils/schema.utils';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,6 +17,7 @@ import { EventOption } from '../../data/interface/tool.interface';
 export class DashboardComponent{
   @ViewChild('schema', { read: SchemaViewComponent }) schemaView!: SchemaViewComponent;
   @ViewChild('schema', { read: ElementRef }) schemaElRef!: ElementRef<HTMLElement>;
+  @ViewChild('root') rootRef!: ElementRef;
 
   sidebarWidth = 475;
   private isResizing = false;
@@ -55,16 +58,24 @@ export class DashboardComponent{
 
   //tabla temporal
 
-  onSidebarAction(evt: EventOption){
-    if(evt.action === 'createTable'){
-      if(this.ghost.active) return;
+  onSidebarAction(evt: EventOptionWithTool){
+    const cmd: ToolCommand | null = mapSidebarToCommand(evt.tool, evt.action, evt.evento);
+    if(!cmd) return;
+    if (isTableCreate(cmd) && !this.ghost.active) {
+      // Inicia el ghost justo donde se clickeó:
       this.startGhost(evt.evento.clientX, evt.evento.clientY);
+      return;
     }
+    return;
   }
 
-  startGhost(x:number, y:number) {
-    // posición relativa al dashboard
+  startGhost(clientX:number, clientY:number) {
+    const dashEl = this.rootRef.nativeElement;
+    const p = centerUnderCursor(clientX, clientY, dashEl, 160, { offsetY: -40 });
     this.ghost.active = true;
+    this.ghost.x = p.x ?? clientX;
+    this.ghost.y = p.y ?? clientY;
+    this.ghost.overSchema = false;
   }
 
   cancelGhost() {
@@ -74,41 +85,32 @@ export class DashboardComponent{
   onMouseMoveTable(ev: MouseEvent) {
     if (!this.ghost.active) return;
 
-    // posición relativa al dashboard
-    const dashRect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
-    const mouseX = ev.clientX - dashRect.left;
-    const mouseY = ev.clientY - dashRect.top;
-
-    this.ghost.x = mouseX - this.ghost.width / 2; // centrado bajo cursor
-    this.ghost.y = mouseY - 40;                   // leve offset vertical
+    // pos relativa al dashboard + centrado del ghost
+    const dashEl = ev.currentTarget as HTMLElement;
+    const p = centerUnderCursor(ev.clientX, ev.clientY, dashEl, this.ghost.width, { offsetY: -40 });
+    this.ghost.x = p.x;
+    this.ghost.y = p.y;
 
     // ¿está sobre el schema?
-    const schemaRect = this.schemaElRef?.nativeElement.getBoundingClientRect();
-    this.ghost.overSchema =
-      ev.clientX >= schemaRect.left &&
-      ev.clientX <= schemaRect.right &&
-      ev.clientY >= schemaRect.top &&
-      ev.clientY <= schemaRect.bottom;
+    this.ghost.overSchema = isInsideElement(ev.clientX, ev.clientY, this.schemaElRef.nativeElement);
   }
 
   onMouseDownTable(ev: MouseEvent) {
     if (!this.ghost.active) return;
-    // IZQUIERDO: crear si está sobre el schema
-    if (ev.button === 0) {
-      if (this.ghost.overSchema) {
-        // coords RELATIVAS al schema
-        const schemaRect = this.schemaElRef.nativeElement.getBoundingClientRect();
-        const xInSchema = ev.clientX - schemaRect.left - this.ghost.width / 2;
-        const yInSchema = ev.clientY - schemaRect.top - 40;
-        this.schemaView.placeNewTableAt({ x: xInSchema, y: yInSchema, width: this.ghost.width, name: this.ghost.table.name });
-        this.cancelGhost();
-      }
-    }
+      // IZQUIERDO: crear si está sobre el schema
+      if (ev.button === 0 && this.ghost.overSchema) {
+        const schemaEl = this.schemaElRef.nativeElement;
+        const p = toElementCoords(ev.clientX, ev.clientY, schemaEl);
+        const xInSchema = p.x - this.ghost.width / 2;
+        const yInSchema = p.y - 40;
 
-    // DERECHO: cancelar creación
-    if (ev.button === 2) {
-      ev.preventDefault();
-      ev.stopPropagation();
+        this.schemaView.placeNewTableAt({
+          x: xInSchema,
+          y: yInSchema,
+          width: this.ghost.width,
+          name: this.ghost.table.name
+        });
+        this.cancelGhost();
     }
   }
 

@@ -16,6 +16,9 @@ export interface EventOption{
   evento: MouseEvent;
 }
 
+export interface EventOptionWithTool extends EventOption { tool: string; }
+
+
 export const TOOLS: Tool[] = [
     {
       name: 'tabla',
