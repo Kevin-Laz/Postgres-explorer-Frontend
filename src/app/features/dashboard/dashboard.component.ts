@@ -2,7 +2,7 @@ import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SchemaViewComponent } from '../../layout/schema-view/schema-view.component';
 import { CommonModule } from '@angular/common';
-import { Table } from '../../data/interface/table.interface';
+import { Table, TableGhost } from '../../data/interface/table.interface';
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
 import { EventOption, EventOptionWithTool } from '../../data/interface/tool.interface';
 import { isTableCreate, mapSidebarToCommand, ToolCommand } from '../../core/actions/tool.actions';
@@ -21,14 +21,7 @@ export class DashboardComponent{
 
   sidebarWidth = 475;
   private isResizing = false;
-  ghost: {
-    active: boolean;
-    x: number;
-    y: number;
-    width: number;
-    table: Table;
-    overSchema: boolean;
-  } = {
+  ghost: TableGhost = {
     active: false,
     x: 0,
     y: 0,

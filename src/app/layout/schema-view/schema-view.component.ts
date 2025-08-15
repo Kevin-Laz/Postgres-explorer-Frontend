@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, View
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
 import { Pos, Size, Table, TableElement } from '../../data/interface/table.interface';
 import { clamp, clampToCanvas, isOutOfCanvas } from '../../core/utils/schema.utils';
+import { TableService } from '../../core/services/table.service';
 
 @Component({
   selector: 'app-schema-view',
@@ -11,15 +12,14 @@ import { clamp, clampToCanvas, isOutOfCanvas } from '../../core/utils/schema.uti
 })
 export class SchemaViewComponent implements AfterViewInit{
 
+  constructor(private tablesSvc : TableService){}
+
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLDivElement>;
 
   @Input() createIntent: { tool: 'table' } | null = null;
   @Output() createConsumed = new EventEmitter<void>();
 
-  tables: Table[] = [
-    { id: crypto.randomUUID(),name: 'test', columns: [{ name: 'col1', type: 'str' }, { name: 'col2', type: 'str' }], x: 80, y: 60, width: 160 },
-    { id: crypto.randomUUID(),name: 'test2', columns: [{ name: 'col1', type: 'str' }, { name: 'col2', type: 'str' }], x: 0, y: 0, width: 160 }
-  ];
+  tables: Table[] = [];
 
   //crea tabla en (x,y) relativos al schema
   placeNewTableAt(pos: { x: number; y: number; width?: number; name?: string }) {
@@ -27,14 +27,9 @@ export class SchemaViewComponent implements AfterViewInit{
     const heightEstimate = 100;
     const clamped = clampToCanvas({ x: pos.x, y: pos.y }, { width, height: heightEstimate }, { w: this.canvasW, h: this.canvasH});
 
-    this.tables.push({
-      id: crypto.randomUUID(),
-      name: pos.name ?? 'NuevaTabla',
-      columns: [{ name: 'col1', type: 'str' }],
-      x: clamped.x,
-      y: clamped.y,
-      width
-    });
+    this.createTableAt({
+      x:clamped.x, y: clamped.y, width: width, name: pos.name ?? 'NuevaTabla'
+    })
   }
 
 
@@ -162,5 +157,10 @@ export class SchemaViewComponent implements AfterViewInit{
       this.outsideFlags[index] = false;
     }
   }
+
+  createTableAt({x,y,width,name}:{x:number;y:number;width?:number;name?:string}) {
+    return this.tablesSvc.create(this.tables, name ?? 'NuevaTabla', {x,y}, width ?? 160, {w:this.canvasW,h:this.canvasH});
+  }
+
 
 }
