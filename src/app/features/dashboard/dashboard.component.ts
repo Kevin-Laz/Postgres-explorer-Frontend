@@ -30,7 +30,7 @@ export class DashboardComponent{
     x: 0,
     y: 0,
     width: 160,
-    table: { name: 'NuevaTabla', columns: [{ name: 'col1', type: 'str' }] },
+    table: { id: crypto.randomUUID(), name: 'NuevaTabla', columns: [{ name: 'col1', type: 'str' }] },
     overSchema: false
   };
 
@@ -64,14 +64,7 @@ export class DashboardComponent{
 
   startGhost(x:number, y:number) {
     // posición relativa al dashboard
-    this.ghost = {
-      active: true,
-      x: x | 0,
-      y: y | 0,
-      width: 160,
-      table: { name: 'NuevaTabla', columns: [{ name: 'col1', type: 'str' }] },
-      overSchema: false
-    };
+    this.ghost.active = true;
   }
 
   cancelGhost() {

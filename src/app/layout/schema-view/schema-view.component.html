@@ -1,5 +1,5 @@
 <div class="schema-content" #canvas>
-  @for(t of tables; let i = $index; track i){
+  @for(t of tables; let i = $index; track t.id){
     <app-table-box
       [table]="t"
       [x]="t.x || 0"

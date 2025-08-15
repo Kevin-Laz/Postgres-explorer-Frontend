@@ -1,6 +1,7 @@
 import { Column } from "./column.interface";
 
 export interface Table{
+  id: string,
   name: string,
   columns: Column[],
   x?: number;

@@ -16,8 +16,8 @@ export class SchemaViewComponent implements AfterViewInit{
   @Output() createConsumed = new EventEmitter<void>();
 
   tables: Table[] = [
-    { name: 'test', columns: [{ name: 'col1', type: 'str' }, { name: 'col2', type: 'str' }], x: 80, y: 60, width: 160 },
-    { name: 'test2', columns: [{ name: 'col1', type: 'str' }, { name: 'col2', type: 'str' }], x: 0, y: 0, width: 160 }
+    { id: crypto.randomUUID(),name: 'test', columns: [{ name: 'col1', type: 'str' }, { name: 'col2', type: 'str' }], x: 80, y: 60, width: 160 },
+    { id: crypto.randomUUID(),name: 'test2', columns: [{ name: 'col1', type: 'str' }, { name: 'col2', type: 'str' }], x: 0, y: 0, width: 160 }
   ];
 
   //crea tabla en (x,y) relativos al schema
@@ -29,6 +29,7 @@ export class SchemaViewComponent implements AfterViewInit{
     const y = Math.min(Math.max(pos.y, 0), Math.max(0, this.canvasH - heightEstimate));
 
     this.tables.push({
+      id: crypto.randomUUID(),
       name: pos.name ?? 'NuevaTabla',
       columns: [{ name: 'col1', type: 'str' }],
       x, y, width
