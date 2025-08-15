@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
 import { Pos, Size, Table, TableElement } from '../../data/interface/table.interface';
+import { clamp, clampToCanvas, isOutOfCanvas } from '../../core/utils/schema.utils';
 
 @Component({
   selector: 'app-schema-view',
@@ -22,17 +23,17 @@ export class SchemaViewComponent implements AfterViewInit{
 
   //crea tabla en (x,y) relativos al schema
   placeNewTableAt(pos: { x: number; y: number; width?: number; name?: string }) {
-    const width = Math.max(120, Math.min(pos.width ?? 160, this.canvasW - 16));
+    const width = clamp(pos.width ?? 160, 120, Math.max(200, this.canvasW - 16));
     const heightEstimate = 100;
-
-    const x = Math.min(Math.max(pos.x, 0), Math.max(0, this.canvasW - width));
-    const y = Math.min(Math.max(pos.y, 0), Math.max(0, this.canvasH - heightEstimate));
+    const clamped = clampToCanvas({ x: pos.x, y: pos.y }, { width, height: heightEstimate }, { w: this.canvasW, h: this.canvasH});
 
     this.tables.push({
       id: crypto.randomUUID(),
       name: pos.name ?? 'NuevaTabla',
       columns: [{ name: 'col1', type: 'str' }],
-      x, y, width
+      x: clamped.x,
+      y: clamped.y,
+      width
     });
   }
 
@@ -132,20 +133,14 @@ export class SchemaViewComponent implements AfterViewInit{
   // Drag: permite salir, marca "outside" y guarda última posición válida por tabla
   onMoveTable(index: number, proposed: Pos) {
     const size = this.boxSizes[index] ?? { width: this.tables[index].width ?? 160, height: 100 };
-    const out =
-      proposed.x < 0 ||
-      proposed.y < 0 ||
-      (proposed.x + size.width)  > this.canvasW ||
-      (proposed.y + size.height) > this.canvasH;
-
-    this.outsideFlags[index] = out;
+    this.outsideFlags[index] = isOutOfCanvas(proposed, size, { w: this.canvasW, h: this.canvasH});
 
     // Mueve libremente
     this.tables[index].x = proposed.x;
     this.tables[index].y = proposed.y;
 
     // Si está dentro, actualiza la última posición válida
-    if (!out) {
+    if (!this.outsideFlags[index]) {
       this.lastValidPos[index] = { x: proposed.x, y: proposed.y };
     }
   }
