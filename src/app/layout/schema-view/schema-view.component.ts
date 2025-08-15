@@ -16,33 +16,28 @@ export class SchemaViewComponent implements AfterViewInit{
 
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLDivElement>;
 
-  @Input() createIntent: { tool: 'table' } | null = null;
-  @Output() createConsumed = new EventEmitter<void>();
+  // ———————————————————————————————————————————————————————————
+  // Estado principal (modelo)
+  // ———————————————————————————————————————————————————————————
 
   tables: Table[] = [];
 
-  //crea tabla en (x,y) relativos al schema
-  placeNewTableAt(pos: { x: number; y: number; width?: number; name?: string }) {
-    const width = clamp(pos.width ?? 160, 120, Math.max(200, this.canvasW - 16));
-    const heightEstimate = 100;
-    const clamped = clampToCanvas({ x: pos.x, y: pos.y }, { width, height: heightEstimate }, { w: this.canvasW, h: this.canvasH});
+  // ———————————————————————————————————————————————————————————
+  // Estado de edición (tabla/columna)
+  // ———————————————————————————————————————————————————————————
 
-    this.createTableAt({
-      x:clamped.x, y: clamped.y, width: width, name: pos.name ?? 'NuevaTabla'
-    })
-  }
-
-
-  // Estado de edición
   editingTableIndex: number | null = null;
   editingTarget: TableElement | null = null;
   editingValue = '';
 
-  // Límites canvas
+  // ———————————————————————————————————————————————————————————
+  // Dimensiones del canvas y de cada TableBox
+  // ———————————————————————————————————————————————————————————
+
   private canvasW = 0;
   private canvasH = 0;
 
-   // Medidas reales por tabla (offsetWidth/offsetHeight)
+  // Medidas reales por tabla (offsetWidth/offsetHeight)
   private boxSizes: Record<number, Size> = {};
 
   // Última posición válida por tabla (para snap back)
@@ -51,10 +46,13 @@ export class SchemaViewComponent implements AfterViewInit{
   // Flags de "fuera del canvas" por tabla (para opacidad)
   outsideFlags: Record<number, boolean> = {};
 
-  // ghost state
-  creating = false;
-  ghost = { x: 0, y: 0, width: 160, height: 80 };
-  ghostOutside = false;
+  // Observers/listeners
+  private ro?: ResizeObserver;
+  private onWindowResize = () => this.updateCanvasSize();
+
+  // ———————————————————————————————————————————————————————————
+  // Ciclo de vida
+  // ———————————————————————————————————————————————————————————
 
   ngAfterViewInit() {
     this.updateCanvasSize();
@@ -71,11 +69,46 @@ export class SchemaViewComponent implements AfterViewInit{
     });
   }
 
+  ngOnDestroy() {
+    this.ro?.disconnect();
+    window.removeEventListener('resize', this.onWindowResize);
+  }
+
+
+  // ———————————————————————————————————————————————————————————
+  // Canvas sizing helpers
+  // ———————————————————————————————————————————————————————————
+
   updateCanvasSize = () => {
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     this.canvasW = rect.width;
     this.canvasH = rect.height;
   };
+
+
+  // ———————————————————————————————————————————————————————————
+  // API PÚBLICA (llamada desde Dashboard): crear tabla en coords del schema
+  // ———————————————————————————————————————————————————————————
+
+  //crea tabla en (x,y) relativos al schema
+  placeNewTableAt(pos: { x: number; y: number; width?: number; name?: string }) {
+    const width = clamp(pos.width ?? 160, 120, Math.max(200, this.canvasW - 16));
+    const heightEstimate = 100;
+    const clamped = clampToCanvas({ x: pos.x, y: pos.y }, { width, height: heightEstimate }, { w: this.canvasW, h: this.canvasH});
+
+    this.createTableAt({
+      x:clamped.x, y: clamped.y, width: width, name: pos.name ?? 'NuevaTabla'
+    })
+  }
+
+  createTableAt({x,y,width,name}:{x:number;y:number;width?:number;name?:string}) {
+    return this.tablesSvc.create(this.tables, name ?? 'NuevaTabla', {x,y}, width ?? 160, {w:this.canvasW,h:this.canvasH});
+  }
+
+
+  // ———————————————————————————————————————————————————————————
+  // Métricas de cada TableBox (ancho/alto real)
+  // ———————————————————————————————————————————————————————————
 
   // Actualiza el tamaño real de cada Tabla
   onBoxMetrics(index: number, m: Size) {
@@ -86,6 +119,10 @@ export class SchemaViewComponent implements AfterViewInit{
       this.lastValidPos[index] = { x: t.x ?? 0, y: t.y ?? 0 };
     }
   }
+
+  // ———————————————————————————————————————————————————————————
+  // Edición (doble click en nombre de tabla/columna)
+  // ———————————————————————————————————————————————————————————
 
   // Comienza la edición
   startEditing(tableIndex: number, data: TableElement) {
@@ -125,6 +162,10 @@ export class SchemaViewComponent implements AfterViewInit{
     this.editingValue = '';
   }
 
+  // ———————————————————————————————————————————————————————————
+  // Drag & Resize de cada TableBox
+  // ———————————————————————————————————————————————————————————
+
   // Drag: permite salir, marca "outside" y guarda última posición válida por tabla
   onMoveTable(index: number, proposed: Pos) {
     const size = this.boxSizes[index] ?? { width: this.tables[index].width ?? 160, height: 100 };
@@ -140,6 +181,7 @@ export class SchemaViewComponent implements AfterViewInit{
     }
   }
 
+  // Resize horizontal con límites del canvas
   onResizeTable(index: number, newWidth: number) {
     const minW = 100;
     const maxW = Math.max(200, this.canvasW - 16);
@@ -158,9 +200,21 @@ export class SchemaViewComponent implements AfterViewInit{
     }
   }
 
-  createTableAt({x,y,width,name}:{x:number;y:number;width?:number;name?:string}) {
-    return this.tablesSvc.create(this.tables, name ?? 'NuevaTabla', {x,y}, width ?? 160, {w:this.canvasW,h:this.canvasH});
-  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

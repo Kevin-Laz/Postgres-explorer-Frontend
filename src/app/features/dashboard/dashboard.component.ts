@@ -17,10 +17,17 @@ import { centerUnderCursor, isInsideElement, snapToGrid, toElementCoords } from 
 export class DashboardComponent{
   @ViewChild('schema', { read: SchemaViewComponent }) schemaView!: SchemaViewComponent;
   @ViewChild('schema', { read: ElementRef }) schemaElRef!: ElementRef<HTMLElement>;
-  @ViewChild('root') rootRef!: ElementRef;
+  @ViewChild('root',   { read: ElementRef }) rootRef!: ElementRef<HTMLElement>;
 
+  // ———————————————————————————————————————————————————————————
+  // Estado del layout (resizer del sidebar)
+  // ———————————————————————————————————————————————————————————
   sidebarWidth = 475;
   private isResizing = false;
+
+  // ———————————————————————————————————————————————————————————
+  // Estado del “ghost” (tabla temporal mientras se crea)
+  // ———————————————————————————————————————————————————————————
   ghost: TableGhost = {
     active: false,
     x: 0,
@@ -30,27 +37,11 @@ export class DashboardComponent{
     overSchema: false
   };
 
-  startResizing(event: MouseEvent){
-    this.isResizing = true;
-    event.preventDefault();
-  }
+  // ———————————————————————————————————————————————————————————
+  // LÓGICA DEL SIDEBAR  → recibe acciones del sidebar y actua en consecuencia
+  // ———————————————————————————————————————————————————————————
 
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    if (!this.isResizing) return;
-    const newWidth = event.clientX;
-    if (newWidth >= 300 && newWidth <= 800) {
-      this.sidebarWidth = newWidth;
-    }
-  }
-
-  @HostListener('document:mouseup')
-  stopResizing() {
-    this.isResizing = false;
-  }
-
-  //tabla temporal
-
+  // Handler central de acciones que vienen del Sidebar
   onSidebarAction(evt: EventOptionWithTool){
     const cmd: ToolCommand | null = mapSidebarToCommand(evt.tool, evt.action, evt.evento);
     if(!cmd) return;
@@ -62,6 +53,11 @@ export class DashboardComponent{
     return;
   }
 
+  // ———————————————————————————————————————————————————————————
+  // LÓGICA DE CREACIÓN DE TABLAS (ghost): mover/confirmar/cancelar
+  // ———————————————————————————————————————————————————————————
+
+  // Inicia el ghost centrado bajo el cursor en el dashboard
   startGhost(clientX:number, clientY:number) {
     const dashEl = this.rootRef.nativeElement;
     const p = centerUnderCursor(clientX, clientY, dashEl, 160, { offsetY: -40 });
@@ -75,6 +71,7 @@ export class DashboardComponent{
     this.ghost.active = false;
   }
 
+  //Mueve el ghost con el mouse y detecta si está sobre el schema
   onMouseMoveTable(ev: MouseEvent) {
     if (!this.ghost.active) return;
 
@@ -88,6 +85,7 @@ export class DashboardComponent{
     this.ghost.overSchema = isInsideElement(ev.clientX, ev.clientY, this.schemaElRef.nativeElement);
   }
 
+  // Click dentro del canvas: crea la tabla real en SchemaView
   onMouseDownTable(ev: MouseEvent) {
     if (!this.ghost.active) return;
       // IZQUIERDO: crear si está sobre el schema
@@ -107,11 +105,13 @@ export class DashboardComponent{
     }
   }
 
+  // ESC: cancela creación del ghost
   @HostListener('document:keydown.escape')
   onEsc() {
     if (this.ghost.active) this.cancelGhost();
   }
 
+  // Click derecho: cancela y bloquea menú contextual del navegador
   onContextMenu(ev: MouseEvent) {
     if (this.ghost.active) {
       ev.preventDefault();
@@ -121,4 +121,31 @@ export class DashboardComponent{
     }
     return true;
   }
+
+  // ———————————————————————————————————————————————————————————
+  // LÓGICA DE RESIZE DEL SIDEBAR (arrastre del separador)
+  // ———————————————————————————————————————————————————————————
+
+  // Inicia el arrastre del separador del sidebar
+  startResizing(event: MouseEvent){
+    this.isResizing = true;
+    event.preventDefault();
+  }
+
+  // Mientras se arrastra, cambia el ancho del sidebar
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (!this.isResizing) return;
+    const newWidth = event.clientX;
+    if (newWidth >= 300 && newWidth <= 800) {
+      this.sidebarWidth = newWidth;
+    }
+  }
+
+  // Termina el arrastre del separador
+  @HostListener('document:mouseup')
+  stopResizing() {
+    this.isResizing = false;
+  }
+
 }

@@ -16,8 +16,8 @@ export class TableBoxComponent implements AfterViewInit{
   @Input() x = 0;
   @Input() y = 0;
   @Input() width = 160;
-  @Input() isOutside = false;
-  @Input() disabled = false;      // desactiva interacciones (drag/resize/editar)
+  @Input() isOutside = false;   // marca visual al estar fuera del canvas
+  @Input() disabled = false;    // desactiva interacciones (drag/resize/editar)
 
   @Output() positionChange = new EventEmitter<{ x: number; y: number }>();
   @Output() widthChange = new EventEmitter<number>();
@@ -32,6 +32,11 @@ export class TableBoxComponent implements AfterViewInit{
   @ViewChild('visibleInput') visibleInput!: ElementRef<HTMLInputElement>;
   @ViewChild('colInput') colInput!: ElementRef<HTMLInputElement>;
 
+
+  // ———————————————————————————————————————————————————————————
+  // Estado interno (drag/resize)
+  // ———————————————————————————————————————————————————————————
+
   private isDragging = false;
   private isResizing = false;
   private startX = 0;
@@ -39,9 +44,22 @@ export class TableBoxComponent implements AfterViewInit{
   private initialWidth = 0;
   private resizeStartX = 0;
 
+  // ———————————————————————————————————————————————————————————
+  // Ciclo de vida
+  // ———————————————————————————————————————————————————————————
+
   ngAfterViewInit(): void {
     this.emitMetrics();
   }
+
+  ngOndestroy(): void{
+    // Por si el componente muere durante drag/resize
+    this.unbindDocListeners();
+  }
+
+  // ———————————————————————————————————————————————————————————
+  // Métricas (ancho/alto reales)
+  // ———————————————————————————————————————————————————————————
 
   private emitMetrics() {
     const el = this.rootRef?.nativeElement;
@@ -50,13 +68,16 @@ export class TableBoxComponent implements AfterViewInit{
     this.metricsChange.emit({ width: el.offsetWidth, height: el.offsetHeight });
   }
 
-  // llamados cuando cambie el ancho
+  // Reemisión diferida para esperar reflow
   private scheduleEmitMetrics() {
-    // esperar al reflow
     setTimeout(() => this.emitMetrics());
   }
 
-  // Emitir solicitud de edición
+  // ———————————————————————————————————————————————————————————
+  // Edición (tabla / columna)
+  // ———————————————————————————————————————————————————————————
+
+  // Doble click en título de tabla
   requestTableEdit() {
     if (this.disabled) return;
     this.editRequest.emit({ type: 'table' });
@@ -69,6 +90,7 @@ export class TableBoxComponent implements AfterViewInit{
     });
   }
 
+  // Doble click en nombre de columna
   requestColumnEdit(index: number) {
     if (this.disabled) return;
     this.editRequest.emit({ type: 'column', index });
@@ -95,6 +117,10 @@ export class TableBoxComponent implements AfterViewInit{
       this.editCancel.emit();
     }
   }
+
+  // ———————————————————————————————————————————————————————————
+  // Drag & Drop (mover la tabla)
+  // ———————————————————————————————————————————————————————————
 
   //Mover tabla
   onMouseDown(event: MouseEvent) {
@@ -125,22 +151,39 @@ export class TableBoxComponent implements AfterViewInit{
     const wasDragging = this.isDragging;
     this.isDragging = false;
     this.isResizing = false;
-    document.removeEventListener('mousemove', this.onMouseMove);
-    document.removeEventListener('mouseup', this.onMouseUp);
-    if (wasDragging) {
-    this.dragEnd.emit();   // avisa al padre que se soltó el mouse
-  }
+    this.unbindDocListeners();
+    if (wasDragging) this.dragEnd.emit();   // avisa al padre que se soltó el mouse
   };
 
+  // ———————————————————————————————————————————————————————————
+  //  Resize horizontal (handler derecho)
+  // ———————————————————————————————————————————————————————————
 
   startResize(event: MouseEvent) {
-    if (this.disabled) return;
+    if (this.isInteractive()) return;
     this.isResizing = true;
     this.initialWidth = this.width;
     this.resizeStartX = event.clientX;
     event.stopPropagation();
     event.preventDefault();
+    this.bindDocListeners();
+  }
+
+  // ———————————————————————————————————————————————————————————
+  //  Helpers privados (interacciones y listeners)
+  // ———————————————————————————————————————————————————————————
+
+  private isInteractive() {
+    return !this.disabled;
+  }
+
+  private bindDocListeners() {
     document.addEventListener('mousemove', this.onMouseMove);
     document.addEventListener('mouseup', this.onMouseUp);
+  }
+
+  private unbindDocListeners() {
+    document.removeEventListener('mousemove', this.onMouseMove);
+    document.removeEventListener('mouseup', this.onMouseUp);
   }
 }
