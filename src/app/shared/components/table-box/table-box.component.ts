@@ -160,7 +160,7 @@ export class TableBoxComponent implements AfterViewInit{
   // ———————————————————————————————————————————————————————————
 
   startResize(event: MouseEvent) {
-    if (this.isInteractive()) return;
+    if (this.disabled) return;
     this.isResizing = true;
     this.initialWidth = this.width;
     this.resizeStartX = event.clientX;
@@ -172,10 +172,6 @@ export class TableBoxComponent implements AfterViewInit{
   // ———————————————————————————————————————————————————————————
   //  Helpers privados (interacciones y listeners)
   // ———————————————————————————————————————————————————————————
-
-  private isInteractive() {
-    return !this.disabled;
-  }
 
   private bindDocListeners() {
     document.addEventListener('mousemove', this.onMouseMove);
