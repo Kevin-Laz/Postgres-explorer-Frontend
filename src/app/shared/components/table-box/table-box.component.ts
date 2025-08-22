@@ -1,10 +1,12 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Table, TableElement } from '../../../data/interface/table.interface';
 import { CommonModule } from '@angular/common';
+import { PgTypeSelectComponent } from '../pg-type-select/pg-type-select.component';
+import { PgType } from '../../../data/interface/pg-types';
 
 @Component({
   selector: 'app-table-box',
-  imports: [CommonModule],
+  imports: [CommonModule, PgTypeSelectComponent],
   templateUrl: './table-box.component.html',
   styleUrl: './table-box.component.scss'
 })
@@ -29,6 +31,7 @@ export class TableBoxComponent implements AfterViewInit{
   @Output() editFinish = new EventEmitter<void>();
   @Output() editCancel = new EventEmitter<void>();
   @Output() dragEnd = new EventEmitter<void>();
+  @Output() columnTypeChange = new EventEmitter<{ index: number; type: string }>();
 
   @ViewChild('root') rootRef!: ElementRef<HTMLDivElement>;
   @ViewChild('visibleInput') visibleInput!: ElementRef<HTMLInputElement>;
@@ -45,6 +48,12 @@ export class TableBoxComponent implements AfterViewInit{
   private startY = 0;
   private initialWidth = 0;
   private resizeStartX = 0;
+
+  // ———————————————————————————————————————————————————————————
+  // Variables para selección de tipo de dato
+  // ———————————————————————————————————————————————————————————
+
+
 
   // ———————————————————————————————————————————————————————————
   // Ciclo de vida
@@ -103,6 +112,15 @@ export class TableBoxComponent implements AfterViewInit{
       const len = input?.value.length;
       input?.setSelectionRange(len, len);
     });
+  }
+
+  //
+  onColumnTypeChange(index: number, typeObj: PgType) {
+    let type = typeObj.base;
+    if (typeObj.param) {
+      type += `(${typeObj.param})`;
+    }
+    this.columnTypeChange.emit({ index, type });
   }
 
   onEditInput(event: Event) {
@@ -183,5 +201,17 @@ export class TableBoxComponent implements AfterViewInit{
   private unbindDocListeners() {
     document.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('mouseup', this.onMouseUp);
+  }
+
+  // ———————————————————————————————————————————————————————————
+  //  Helpers para selección de tipo
+  // ———————————————————————————————————————————————————————————
+
+  getFormatType(type: string){
+    let formatType: PgType = {
+      base: type.split('(')[0],
+      param: type.match(/\((.*?)\)/)?.[1]
+    }
+    return formatType;
   }
 }

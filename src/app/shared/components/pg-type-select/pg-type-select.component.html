@@ -1,0 +1,28 @@
+<div class="pg-type-select">
+  <select [value]="selectedType" (change)="onTypeChange($event)">
+    <optgroup label="Simples">
+      @for(type of simpleTypes; track type){
+        <option [value]="type">{{ type }}</option>
+      }
+    </optgroup>
+
+    <optgroup label="Parámetros">
+      @for(type of paramTypes; track type){
+        <option [value]="type">{{ type }}</option>
+      }
+    </optgroup>
+  </select>
+
+  <ng-container>
+    @if(selectedType && paramTypes.includes(selectedType)){
+      <input
+      type="number"
+      min="1"
+      max="65535"
+      placeholder="Valor"
+      [value]="paramValue || ''"
+      (input)="onParamChange($event)"
+    />
+    }
+  </ng-container>
+</div>

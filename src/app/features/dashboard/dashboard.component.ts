@@ -98,8 +98,7 @@ export class DashboardComponent{
         this.schemaView.placeNewTableAt({
           x: xInSchema,
           y: yInSchema,
-          width: this.ghost.width,
-          name: this.ghost.table.name
+          width: this.ghost.width
         });
         this.cancelGhost();
     }

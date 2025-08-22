@@ -18,6 +18,8 @@
       (editFinish)="onFinishEditing()"
       (editCancel)="onCancelEditing()"
 
+      (columnTypeChange)="onColumnTypeChange(i, $event)"
+
       [isEditing]="editingTableIndex === i && editingTarget?.type === 'table'"
       [isEditingCol]="editingTableIndex === i && editingTarget?.type === 'column' ? (editingTarget?.index ?? -1) : -1"
 

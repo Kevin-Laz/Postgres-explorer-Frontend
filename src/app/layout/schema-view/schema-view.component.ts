@@ -97,12 +97,12 @@ export class SchemaViewComponent implements AfterViewInit{
     const clamped = clampToCanvas({ x: pos.x, y: pos.y }, { width, height: heightEstimate }, { w: this.canvasW, h: this.canvasH});
 
     this.createTableAt({
-      x:clamped.x, y: clamped.y, width: width, name: pos.name ?? 'NuevaTabla'
+      x:clamped.x, y: clamped.y, width: width, name: pos.name ?? `Tabla-${this.tables.length.toString()}`
     })
   }
 
   createTableAt({x,y,width,name}:{x:number;y:number;width?:number;name?:string}) {
-    return this.tablesSvc.create(this.tables, name ?? 'NuevaTabla', {x,y}, width ?? 160, {w:this.canvasW,h:this.canvasH});
+    return this.tablesSvc.create(this.tables, name ?? `Tabla-${this.tables.length.toString()}`, {x,y}, width ?? 160, {w:this.canvasW,h:this.canvasH});
   }
 
 
@@ -149,6 +149,12 @@ export class SchemaViewComponent implements AfterViewInit{
       table.columns[this.editingTarget.index].name = value;
     }
   }
+
+  // Actualiza el tipo de dato
+  onColumnTypeChange(tableIndex: number, evt: { index: number; type: string }) {
+    this.tables[tableIndex].columns[evt.index].type = evt.type;
+  }
+
 
   onFinishEditing() {
     this.editingTableIndex = null;

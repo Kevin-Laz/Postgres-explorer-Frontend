@@ -6,7 +6,7 @@ class="table-box"
 [style.transform]="'translate3d(' + x + 'px,' + y + 'px,0)'"
 [style.width.px]="width"
 (mousedown)="onMouseDown($event)">
-  <header class="table-header">
+  <header class="table-header" [class.error]="isError">
     <div class="table-name" (dblclick)="requestTableEdit()">
       @if(isEditing){
         <input
@@ -38,8 +38,16 @@ class="table-box"
             <span class="column-name" [ngStyle]="{ maxWidth: width -50 + 'px'}">{{ col.name }}</span>
           }
         </div>
-        <div>
-          <span class="column-type">{{ col.type }}</span>
+        <div class="column-type">
+          @if(isEditingCol === i){
+            <app-pg-type-select
+              [value]="getFormatType(col.type)"
+              (valueChange)="onColumnTypeChange(i, $event)"
+              (keydown)="onKeyDown($event)"
+            ></app-pg-type-select>
+          } @else {
+            <span>{{ col.type }}</span>
+          }
         </div>
       </div>
     }
