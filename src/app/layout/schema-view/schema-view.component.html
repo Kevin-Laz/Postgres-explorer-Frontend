@@ -6,6 +6,8 @@
       [y]="t.y || 0"
       [width]="t.width || 160"
 
+      [isError]="t.error || false"
+
       (metricsChange)="onBoxMetrics(i, $event)"
       (positionChange)="onMoveTable(i, $event)"
       (widthChange)="onResizeTable(i, $event)"

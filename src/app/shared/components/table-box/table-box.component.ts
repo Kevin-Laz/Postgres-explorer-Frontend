@@ -19,6 +19,8 @@ export class TableBoxComponent implements AfterViewInit{
   @Input() isOutside = false;   // marca visual al estar fuera del canvas
   @Input() disabled = false;    // desactiva interacciones (drag/resize/editar)
 
+  @Input() isError = false;
+
   @Output() positionChange = new EventEmitter<{ x: number; y: number }>();
   @Output() widthChange = new EventEmitter<number>();
   @Output() metricsChange = new EventEmitter<{ width: number; height: number }>(); // ← tamaño real

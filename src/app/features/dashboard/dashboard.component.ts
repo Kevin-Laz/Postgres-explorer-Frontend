@@ -33,7 +33,7 @@ export class DashboardComponent{
     x: 0,
     y: 0,
     width: 160,
-    table: { id: crypto.randomUUID(), name: 'NuevaTabla', columns: [{ name: 'col1', type: 'str' }] },
+    table: { id: crypto.randomUUID(), name: 'NuevaTabla', columns: [{ name: 'col1', type: 'varchar(32)' }] },
     overSchema: false
   };
 

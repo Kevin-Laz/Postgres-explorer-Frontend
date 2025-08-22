@@ -8,6 +8,7 @@ export interface Table{
   y?: number;
   width?: number;
   height?: number;
+  error?: boolean;
 }
 
 export interface TableGhost{
