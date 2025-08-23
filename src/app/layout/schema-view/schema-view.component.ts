@@ -92,7 +92,7 @@ export class SchemaViewComponent implements AfterViewInit{
 
   //crea tabla en (x,y) relativos al schema
   placeNewTableAt(pos: { x: number; y: number; width?: number; name?: string }) {
-    const width = clamp(pos.width ?? 160, 120, Math.max(200, this.canvasW - 16));
+    const width = clamp(pos.width ?? 180, 120, Math.max(200, this.canvasW - 16));
     const heightEstimate = 100;
     const clamped = clampToCanvas({ x: pos.x, y: pos.y }, { width, height: heightEstimate }, { w: this.canvasW, h: this.canvasH});
 
@@ -102,7 +102,7 @@ export class SchemaViewComponent implements AfterViewInit{
   }
 
   createTableAt({x,y,width,name}:{x:number;y:number;width?:number;name?:string}) {
-    return this.tablesSvc.create(this.tables, name ?? `Tabla-${this.tables.length.toString()}`, {x,y}, width ?? 160, {w:this.canvasW,h:this.canvasH});
+    return this.tablesSvc.create(this.tables, name ?? `Tabla-${this.tables.length.toString()}`, {x,y}, width ?? 180, {w:this.canvasW,h:this.canvasH});
   }
 
 
@@ -174,7 +174,7 @@ export class SchemaViewComponent implements AfterViewInit{
 
   // Drag: permite salir, marca "outside" y guarda última posición válida por tabla
   onMoveTable(index: number, proposed: Pos) {
-    const size = this.boxSizes[index] ?? { width: this.tables[index].width ?? 160, height: 100 };
+    const size = this.boxSizes[index] ?? { width: this.tables[index].width ?? 180, height: 100 };
     this.outsideFlags[index] = isOutOfCanvas(proposed, size, { w: this.canvasW, h: this.canvasH});
 
     // Mueve libremente

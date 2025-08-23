@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { PARAM_TYPES, PgType, SIMPLE_TYPES } from '../../../data/interface/pg-types';
+import { PARAM_TYPES, PgType, SIMPLE_TYPES, TYPE_RULES } from '../../../data/interface/pg-types';
 
 @Component({
   selector: 'app-pg-type-select',
@@ -15,12 +15,12 @@ export class PgTypeSelectComponent implements OnInit{
   paramTypes = PARAM_TYPES.map((t)=>t.toLowerCase());
 
   selectedType: string | null = null;
-  paramValue: number | string | null = null;
+  paramValue: number | null = null;
 
   ngOnInit() {
     if (this.value) {
-      this.selectedType = this.value.base;
-      this.paramValue = this.value.param ?? null;
+      this.selectedType = this.value.base.toLowerCase();
+      this.paramValue = this.value.param ? Number(this.value.param) : null;
     }
   }
 
@@ -31,7 +31,13 @@ export class PgTypeSelectComponent implements OnInit{
   }
 
   onParamChange(event: Event) {
-    const val = (event.target as HTMLInputElement).value;
+    let val = Number((event.target as HTMLInputElement).value);
+    const rule = this.getRule(this.selectedType!);
+    //Validaciones de valor
+    if(isNaN(val)) val = rule.default;
+    if (val < rule.min) val = rule.min;
+    if (val > rule.max) val = rule.max;
+
     this.paramValue = val;
     this.emitValue();
   }
@@ -40,9 +46,15 @@ export class PgTypeSelectComponent implements OnInit{
     if (!this.selectedType) return;
 
     if (this.paramTypes.includes(this.selectedType)) {
-      this.valueChange.emit({ base: this.selectedType, param: this.paramValue ?? '' });
+      const rule = this.getRule(this.selectedType);
+      const param = this.paramValue ?? rule.default;
+      this.valueChange.emit({ base: this.selectedType, param })
     } else {
       this.valueChange.emit({ base: this.selectedType });
     }
+  }
+
+  getRule(type: string) {
+    return TYPE_RULES[type] ?? { min: 1, max: 65535, default: 1 };
   }
 }

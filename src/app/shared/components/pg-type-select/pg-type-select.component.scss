@@ -1,19 +1,19 @@
 .pg-type-select {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 
   select {
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 11px;
-    max-width: 86px;
+    font-size: 9px;
+    max-width: 70px;
   }
 
   input {
-    max-width: 60px;
+    max-width: 40px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 8px;
   }
 }

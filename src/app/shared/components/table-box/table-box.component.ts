@@ -17,7 +17,7 @@ export class TableBoxComponent implements AfterViewInit{
 
   @Input() x = 0;
   @Input() y = 0;
-  @Input() width = 160;
+  @Input() width = 180;
   @Input() isOutside = false;   // marca visual al estar fuera del canvas
   @Input() disabled = false;    // desactiva interacciones (drag/resize/editar)
 
@@ -91,6 +91,7 @@ export class TableBoxComponent implements AfterViewInit{
   // Doble click en título de tabla
   requestTableEdit() {
     if (this.disabled) return;
+    if (this.isEditing) return;
     this.editRequest.emit({ type: 'table' });
 
     setTimeout(() => {
@@ -104,6 +105,7 @@ export class TableBoxComponent implements AfterViewInit{
   // Doble click en nombre de columna
   requestColumnEdit(index: number) {
     if (this.disabled) return;
+    if (this.isEditingCol === index) return;
     this.editRequest.emit({ type: 'column', index });
 
     setTimeout(() => {

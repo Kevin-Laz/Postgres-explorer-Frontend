@@ -32,7 +32,7 @@ export class DashboardComponent{
     active: false,
     x: 0,
     y: 0,
-    width: 160,
+    width: 180,
     table: { id: crypto.randomUUID(), name: 'NuevaTabla', columns: [{ name: 'col1', type: 'varchar(32)' }] },
     overSchema: false
   };
@@ -60,7 +60,7 @@ export class DashboardComponent{
   // Inicia el ghost centrado bajo el cursor en el dashboard
   startGhost(clientX:number, clientY:number) {
     const dashEl = this.rootRef.nativeElement;
-    const p = centerUnderCursor(clientX, clientY, dashEl, 160, { offsetY: -40 });
+    const p = centerUnderCursor(clientX, clientY, dashEl, 180, { offsetY: -40 });
     this.ghost.active = true;
     this.ghost.x = p.x ?? clientX;
     this.ghost.y = p.y ?? clientY;

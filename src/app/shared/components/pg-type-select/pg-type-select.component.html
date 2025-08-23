@@ -2,13 +2,13 @@
   <select [value]="selectedType" (change)="onTypeChange($event)">
     <optgroup label="Simples">
       @for(type of simpleTypes; track type){
-        <option [value]="type">{{ type }}</option>
+        <option [value]="type" [selected]="selectedType===type">{{ type }}</option>
       }
     </optgroup>
 
     <optgroup label="Parámetros">
       @for(type of paramTypes; track type){
-        <option [value]="type">{{ type }}</option>
+        <option [value]="type" [selected]="selectedType===type">{{ type }}</option>
       }
     </optgroup>
   </select>
@@ -17,8 +17,8 @@
     @if(selectedType && paramTypes.includes(selectedType)){
       <input
       type="number"
-      min="1"
-      max="65535"
+      [min]="getRule(selectedType).min"
+      [max]="getRule(selectedType).max"
       placeholder="Valor"
       [value]="paramValue || ''"
       (input)="onParamChange($event)"
