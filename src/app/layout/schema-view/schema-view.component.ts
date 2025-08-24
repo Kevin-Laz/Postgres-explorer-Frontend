@@ -3,6 +3,7 @@ import { TableBoxComponent } from '../../shared/components/table-box/table-box.c
 import { Pos, Size, Table, TableElement } from '../../data/interface/table.interface';
 import { clamp, clampToCanvas, isOutOfCanvas } from '../../core/utils/schema.utils';
 import { TableService } from '../../core/services/table.service';
+import { isTableDelete, ToolCommand } from '../../core/actions/tool.actions';
 
 @Component({
   selector: 'app-schema-view',
@@ -29,6 +30,15 @@ export class SchemaViewComponent implements AfterViewInit{
   editingTableIndex: number | null = null;
   editingTarget: TableElement | null = null;
   editingValue = '';
+
+  // ———————————————————————————————————————————————————————————
+  // Estado de selección (tabla)
+  // ———————————————————————————————————————————————————————————
+
+  @Input() selectionMode = false;
+  @Input() pendingCmd : ToolCommand | null = null;
+
+  @Output() selectionFinish = new EventEmitter<boolean>();
 
   // ———————————————————————————————————————————————————————————
   // Dimensiones del canvas y de cada TableBox
@@ -103,6 +113,10 @@ export class SchemaViewComponent implements AfterViewInit{
 
   createTableAt({x,y,width,name}:{x:number;y:number;width?:number;name?:string}) {
     return this.tablesSvc.create(this.tables, name ?? `Tabla-${this.tables.length.toString()}`, {x,y}, width ?? 180, {w:this.canvasW,h:this.canvasH});
+  }
+
+  deleteTableAt(id: string){
+    return this.tablesSvc.remove(this.tables, id);
   }
 
 
@@ -206,7 +220,18 @@ export class SchemaViewComponent implements AfterViewInit{
     }
   }
 
+  // ———————————————————————————————————————————————————————————
+  // Logica de herramientas/opciones que requieran modo selección
+  // ———————————————————————————————————————————————————————————
 
+  onTableSelected(id: string){
+    if(this.pendingCmd && this.selectionMode){
+      if(isTableDelete(this.pendingCmd)){
+        this.deleteTableAt(id);
+        this.selectionFinish.emit(false);
+      }
+    }
+  }
 
 
 

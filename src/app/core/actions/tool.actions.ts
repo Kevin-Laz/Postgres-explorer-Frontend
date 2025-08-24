@@ -27,7 +27,7 @@ export type CreateTablePayload = {
   width?: number;
 };
 export type EditTablePayload      = { id: string };
-export type DeleteTablePayload    = { id: string };
+export type DeleteTablePayload    = { id?: string };
 export type DuplicateTablePayload = { id: string };
 export type DetailsTablePayload   = { id: string };
 
@@ -60,7 +60,7 @@ export const editTableCmd = (id: string): TableEditCmd => ({
   kind: ToolKind.Table, action: ToolAction.Edit, payload: { id }
 });
 
-export const deleteTableCmd = (id: string): TableDeleteCmd => ({
+export const deleteTableCmd = (id?: string): TableDeleteCmd => ({
   kind: ToolKind.Table, action: ToolAction.Delete, payload: { id }
 });
 
@@ -107,7 +107,7 @@ export function mapSidebarToCommand(
         // Para despues, tambien falta crear los estilos para el “modo selección”
         return null;
       case 'deleteTable':
-        return null;
+        return deleteTableCmd();
       case 'duplicateTable':
         return null;
       case 'viewTableDetails':

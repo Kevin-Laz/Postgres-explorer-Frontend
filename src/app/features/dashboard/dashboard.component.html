@@ -3,7 +3,7 @@
     <app-sidebar (actionSelected)="onSidebarAction($event)"></app-sidebar>
     <div class="resizer" (mousedown)="startResizing($event)"></div>
   </div>
-  <app-schema-view #schema></app-schema-view>
+  <app-schema-view #schema [selectionMode]="selectionMode" [pendingCmd]="pendingCmd" (selectionFinish)="selectionFinish($event)"></app-schema-view>
 
   @if(ghost.active){
     <app-table-box

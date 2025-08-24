@@ -20,6 +20,8 @@ export class TableBoxComponent implements AfterViewInit{
   @Input() width = 180;
   @Input() isOutside = false;   // marca visual al estar fuera del canvas
   @Input() disabled = false;    // desactiva interacciones (drag/resize/editar)
+  @Input() selectionMode = false;
+  @Input() deleteMode = false;
 
   @Input() isError = false;
 
@@ -32,6 +34,7 @@ export class TableBoxComponent implements AfterViewInit{
   @Output() editCancel = new EventEmitter<void>();
   @Output() dragEnd = new EventEmitter<void>();
   @Output() columnTypeChange = new EventEmitter<{ index: number; type: string }>();
+  @Output() tableSelected = new EventEmitter<string>();
 
   @ViewChild('root') rootRef!: ElementRef<HTMLDivElement>;
   @ViewChild('visibleInput') visibleInput!: ElementRef<HTMLInputElement>;
@@ -92,6 +95,7 @@ export class TableBoxComponent implements AfterViewInit{
   requestTableEdit() {
     if (this.disabled) return;
     if (this.isEditing) return;
+    if (this.selectionMode) return;
     this.editRequest.emit({ type: 'table' });
 
     setTimeout(() => {
@@ -106,6 +110,7 @@ export class TableBoxComponent implements AfterViewInit{
   requestColumnEdit(index: number) {
     if (this.disabled) return;
     if (this.isEditingCol === index) return;
+    if (this.selectionMode) return;
     this.editRequest.emit({ type: 'column', index });
 
     setTimeout(() => {
@@ -137,6 +142,12 @@ export class TableBoxComponent implements AfterViewInit{
       this.editFinish.emit();
     } else if (event.key === 'Escape') {
       this.editCancel.emit();
+    }
+  }
+
+  onTableClick(event: MouseEvent) {
+    if (this.selectionMode && this.table) {
+      this.tableSelected.emit(this.table.id);
     }
   }
 

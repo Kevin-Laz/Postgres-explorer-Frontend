@@ -8,6 +8,10 @@
   background-color: #f9fffc;
   transition: transform .12s ease, box-shadow .2s;
 
+  &.selection{
+    box-shadow: rgba(156, 222, 208, 0.5) 5px 5px 15px 5px;    cursor: pointer;
+  }
+
   &.outside {
     opacity: .4;
   }
@@ -49,7 +53,9 @@
     cursor: pointer;
 
     &:hover{
-      background-color: #fcf9f9;
+      &:not(.outside):not(.error):not(.selection){
+        background-color: #fcf9f9;
+      }
     }
 
     .table-name{
@@ -105,7 +111,9 @@
       cursor: pointer;
 
       &:hover{
-        background-color: #fcf9f9;
+        &:not(.outside):not(.error):not(.selection){
+          background-color: #fcf9f9;
+        }
       }
 
       &:last-child{

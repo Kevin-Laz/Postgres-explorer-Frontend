@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Table, TableGhost } from '../../data/interface/table.interface';
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
 import { EventOption, EventOptionWithTool } from '../../data/interface/tool.interface';
-import { isTableCreate, mapSidebarToCommand, ToolCommand } from '../../core/actions/tool.actions';
+import { isTableCreate, isTableDelete, mapSidebarToCommand, ToolCommand } from '../../core/actions/tool.actions';
 import { centerUnderCursor, isInsideElement, snapToGrid, toElementCoords } from '../../core/utils/schema.utils';
 
 @Component({
@@ -25,6 +25,12 @@ export class DashboardComponent{
   sidebarWidth = 475;
   private isResizing = false;
 
+  // ———————————————————————————————————————————————————————————
+  // Estado de selección en squema
+  // ———————————————————————————————————————————————————————————
+
+  selectionMode = false;
+  pendingCmd: ToolCommand | null = null;
   // ———————————————————————————————————————————————————————————
   // Estado del “ghost” (tabla temporal mientras se crea)
   // ———————————————————————————————————————————————————————————
@@ -46,8 +52,14 @@ export class DashboardComponent{
     const cmd: ToolCommand | null = mapSidebarToCommand(evt.tool, evt.action, evt.evento);
     if(!cmd) return;
     if (isTableCreate(cmd) && !this.ghost.active) {
+      this.selectionMode = false;
       // Inicia el ghost justo donde se clickeó:
       this.startGhost(evt.evento.clientX, evt.evento.clientY);
+      return;
+    }
+    if(isTableDelete(cmd)){
+      this.selectionMode = !this.selectionMode;
+      this.pendingCmd = cmd;
       return;
     }
     return;
@@ -147,4 +159,12 @@ export class DashboardComponent{
     this.isResizing = false;
   }
 
+  // ———————————————————————————————————————————————————————————
+  // LÓGICA DE SELECCION
+  // ———————————————————————————————————————————————————————————
+
+  selectionFinish(bol: boolean){
+    this.selectionMode = bol;
+    this.pendingCmd = null;
+  }
 }

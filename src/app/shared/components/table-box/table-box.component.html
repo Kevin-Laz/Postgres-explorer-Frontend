@@ -3,10 +3,12 @@
 class="table-box"
 [class.outside]="isOutside"
 [class.error]="isError"
+[class.selection]="selectionMode"
 [style.transform]="'translate3d(' + x + 'px,' + y + 'px,0)'"
 [style.width.px]="width"
-(mousedown)="onMouseDown($event)">
-  <header class="table-header" [class.error]="isError">
+(mousedown)="onMouseDown($event)"
+(click)="onTableClick($event)">
+  <header class="table-header" [class.error]="isError" [class.outside]="isOutside" [class.selection]="selectionMode">
     <div class="table-name" (dblclick)="requestTableEdit()">
       @if(isEditing){
         <input
@@ -24,7 +26,7 @@ class="table-box"
 
   <body class="table-columns">
     @for(col of table?.columns; let i = $index; track col.name){
-      <div class="column-row" (dblclick)="requestColumnEdit(i)">
+      <div class="column-row" [class.outside]="isOutside" [class.error]="isError" [class.selection]="selectionMode" (dblclick)="requestColumnEdit(i)">
         <div class="column-container-name" [ngStyle]="{ maxWidth: width - 100 + 'px'}">
           @if(isEditingCol === i){
             <input

@@ -7,10 +7,6 @@ import { clamp } from '../utils/schema.utils';
 })
 export class TableService {
 
-  constructor() {}
-
-  url_base:string = 'http://localhost:3000'
-
    // Crear tabla en solo en UI
   create(
     tables: Table[],
@@ -40,7 +36,15 @@ export class TableService {
 
 
   duplicate(tables: Table[], id: string) { /* copia + offset */ }
-  remove(tables: Table[], id: string) { /* splice */ }
+
+
+
+  remove(tables: Table[], id: string) {
+    const idx = tables.findIndex(t => t.id === id);
+    if (idx !== -1) {
+      tables.splice(idx, 1);
+    }
+  }
 
 
 }
