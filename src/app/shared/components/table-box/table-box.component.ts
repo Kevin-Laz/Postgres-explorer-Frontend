@@ -34,7 +34,7 @@ export class TableBoxComponent implements AfterViewInit{
   @Output() editCancel = new EventEmitter<void>();
   @Output() dragEnd = new EventEmitter<void>();
   @Output() columnTypeChange = new EventEmitter<{ index: number; type: string }>();
-  @Output() tableSelected = new EventEmitter<string>();
+  @Output() tableSelected = new EventEmitter<[Table, MouseEvent]>();
 
   @ViewChild('root') rootRef!: ElementRef<HTMLDivElement>;
   @ViewChild('visibleInput') visibleInput!: ElementRef<HTMLInputElement>;
@@ -147,7 +147,7 @@ export class TableBoxComponent implements AfterViewInit{
 
   onTableClick(event: MouseEvent) {
     if (this.selectionMode && this.table) {
-      this.tableSelected.emit(this.table.id);
+      this.tableSelected.emit([this.table, event]);
     }
   }
 

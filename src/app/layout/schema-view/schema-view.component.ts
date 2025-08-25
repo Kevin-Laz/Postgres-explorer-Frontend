@@ -3,7 +3,7 @@ import { TableBoxComponent } from '../../shared/components/table-box/table-box.c
 import { Pos, Size, Table, TableElement } from '../../data/interface/table.interface';
 import { clamp, clampToCanvas, isOutOfCanvas } from '../../core/utils/schema.utils';
 import { TableService } from '../../core/services/table.service';
-import { isTableDelete, ToolCommand } from '../../core/actions/tool.actions';
+import { isTableDelete, isTableDuplicate, ToolCommand } from '../../core/actions/tool.actions';
 
 @Component({
   selector: 'app-schema-view',
@@ -39,6 +39,7 @@ export class SchemaViewComponent implements AfterViewInit{
   @Input() pendingCmd : ToolCommand | null = null;
 
   @Output() selectionFinish = new EventEmitter<boolean>();
+  @Output() selectionStart = new EventEmitter<[ToolCommand, Table, MouseEvent]>();
 
   // ———————————————————————————————————————————————————————————
   // Dimensiones del canvas y de cada TableBox
@@ -112,7 +113,15 @@ export class SchemaViewComponent implements AfterViewInit{
   }
 
   createTableAt({x,y,width,name}:{x:number;y:number;width?:number;name?:string}) {
-    return this.tablesSvc.create(this.tables, name ?? `Tabla-${this.tables.length.toString()}`, {x,y}, width ?? 180, {w:this.canvasW,h:this.canvasH});
+    this.tablesSvc.create(this.tables, name ?? `Tabla-${this.tables.length.toString()}`, {x,y}, width ?? 180, {w:this.canvasW,h:this.canvasH});
+    this.selectionFinish.emit(false);
+    return;
+  }
+
+  duplicateTableAt(table: Table){
+    this.tablesSvc.duplicate(this.tables, table, {w:this.canvasW,h:this.canvasH});
+    this.selectionFinish.emit(false);
+    return;
   }
 
   deleteTableAt(id: string){
@@ -224,11 +233,17 @@ export class SchemaViewComponent implements AfterViewInit{
   // Logica de herramientas/opciones que requieran modo selección
   // ———————————————————————————————————————————————————————————
 
-  onTableSelected(id: string){
+  onTableSelected(selection: [Table, MouseEvent]){
+    const table = selection[0];
+    const event = selection[1];
     if(this.pendingCmd && this.selectionMode){
       if(isTableDelete(this.pendingCmd)){
-        this.deleteTableAt(id);
+        this.deleteTableAt(table.id);
         this.selectionFinish.emit(false);
+      }
+
+      if(isTableDuplicate(this.pendingCmd)){
+        this.selectionStart.emit([this.pendingCmd, table, event]);
       }
     }
   }

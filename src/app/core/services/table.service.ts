@@ -35,7 +35,23 @@ export class TableService {
 
 
 
-  duplicate(tables: Table[], id: string) { /* copia + offset */ }
+  duplicate(tables: Table[], table: Table, canvas: { w: number; h: number }) {
+    const width = table.width || 180;
+    const id = crypto.randomUUID?.() ?? String(Date.now());
+    const w = Math.max(120, Math.min(width, Math.max(200, canvas.w - 16)));
+    const x = clamp(table.x || 0 , 0, Math.max(0, canvas.w - w));
+    const y = clamp(table.y || 0, 0, Math.max(0, canvas.h - 100));
+
+    const newTable: Table = {
+      id,
+      name: table.name,
+      columns: table.columns,
+      x,
+      y,
+      width: w
+    };
+    tables.push(newTable);
+  }
 
 
 

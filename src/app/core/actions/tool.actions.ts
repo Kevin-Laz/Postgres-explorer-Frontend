@@ -26,10 +26,15 @@ export type CreateTablePayload = {
   name?: string;
   width?: number;
 };
-export type EditTablePayload      = { id: string };
+export type EditTablePayload      = { id?: string };
 export type DeleteTablePayload    = { id?: string };
-export type DuplicateTablePayload = { id: string };
-export type DetailsTablePayload   = { id: string };
+export type DuplicateTablePayload = {
+  id?: string;
+  at?: ScreenPoint;
+  name?: string;
+  width?: number;
+};
+export type DetailsTablePayload   = { id?: string };
 
 
 // TABLE: comandos
@@ -56,7 +61,7 @@ export const createTableCmd = (p: CreateTablePayload = {}): TableCreateCmd => ({
   payload: p,
 });
 
-export const editTableCmd = (id: string): TableEditCmd => ({
+export const editTableCmd = (id?: string): TableEditCmd => ({
   kind: ToolKind.Table, action: ToolAction.Edit, payload: { id }
 });
 
@@ -64,11 +69,11 @@ export const deleteTableCmd = (id?: string): TableDeleteCmd => ({
   kind: ToolKind.Table, action: ToolAction.Delete, payload: { id }
 });
 
-export const duplicateTableCmd = (id: string): TableDuplicateCmd => ({
-  kind: ToolKind.Table, action: ToolAction.Duplicate, payload: { id }
+export const duplicateTableCmd = (id?: string, p: CreateTablePayload = {}): TableDuplicateCmd => ({
+  kind: ToolKind.Table, action: ToolAction.Duplicate, payload: { id, ...p }
 });
 
-export const detailsTableCmd = (id: string): TableDetailsCmd    => ({
+export const detailsTableCmd = (id?: string): TableDetailsCmd    => ({
   kind: ToolKind.Table, action: ToolAction.Details, payload: { id }
 });
 
@@ -104,14 +109,13 @@ export function mapSidebarToCommand(
       case 'createTable':
         return createTableCmd({ at: { clientX: ev.clientX, clientY: ev.clientY }});
       case 'editTable':
-        // Para despues, tambien falta crear los estilos para el “modo selección”
-        return null;
+        return editTableCmd();
       case 'deleteTable':
         return deleteTableCmd();
       case 'duplicateTable':
-        return null;
+        return duplicateTableCmd(undefined, { at: { clientX: ev.clientX, clientY: ev.clientY }});
       case 'viewTableDetails':
-        return null;
+        return detailsTableCmd();
       default:
         return null;
     }
