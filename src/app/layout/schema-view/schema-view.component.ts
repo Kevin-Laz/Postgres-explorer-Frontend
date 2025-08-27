@@ -166,14 +166,14 @@ export class SchemaViewComponent implements AfterViewInit{
           { w: this.CANVAS_W, h: this.CANVAS_H }
         );
     this.createTableAt({
-      x:clamped.x, y: clamped.y, width: width, name: pos.name ?? `Tabla-${this.tables.length.toString()}`
+      x:clamped.x, y: clamped.y, width: width, name: pos.name ?? `Tabla_${this.tables.length.toString()}`
     })
   }
 
   createTableAt({x,y,width,name}:{x:number;y:number;width?:number;name?:string}) {
     this.tablesSvc.create(
           this.tables,
-          name ?? `Tabla-${this.tables.length}`,
+          name ?? `Tabla_${this.tables.length}`,
           { x, y },
           width ?? 180,
           { w: this.CANVAS_W, h: this.CANVAS_H }
