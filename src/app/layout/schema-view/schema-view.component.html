@@ -1,30 +1,36 @@
-<div class="schema-content" #canvas>
-  @for(t of tables; let i = $index; track t.id){
-    <app-table-box
-      [table]="t"
-      [x]="t.x || 0"
-      [y]="t.y || 0"
-      [width]="t.width || 160"
+<div
+  #viewport
+  class="schema-viewport"
+  (pointerdown)="onPanStart($event)"
+>
+  <div class="schema-content" #canvas>
+    @for(t of tables; let i = $index; track t.id){
+      <app-table-box
+        [table]="t"
+        [x]="t.x || 0"
+        [y]="t.y || 0"
+        [width]="t.width || 160"
 
-      [isError]="t.error || false"
+        [isError]="t.error || false"
 
-      (metricsChange)="onBoxMetrics(i, $event)"
-      (positionChange)="onMoveTable(i, $event)"
-      (widthChange)="onResizeTable(i, $event)"
-      (dragEnd)="onDragEnd(i)"
+        (metricsChange)="onBoxMetrics(i, $event)"
+        (positionChange)="onMoveTable(i, $event)"
+        (widthChange)="onResizeTable(i, $event)"
+        (dragEnd)="onDragEnd(i)"
 
-      (editRequest)="startEditing(i, $event)"
-      (editChange)="onEditChange($event)"
-      (editFinish)="onFinishEditing()"
-      (editCancel)="onCancelEditing()"
-      (tableSelected)="onTableSelected($event)"
-      (columnTypeChange)="onColumnTypeChange(i, $event)"
+        (editRequest)="startEditing(i, $event)"
+        (editChange)="onEditChange($event)"
+        (editFinish)="onFinishEditing()"
+        (editCancel)="onCancelEditing()"
+        (tableSelected)="onTableSelected($event)"
+        (columnTypeChange)="onColumnTypeChange(i, $event)"
 
-      [selectionMode]="selectionMode"
-      [isEditing]="editingTableIndex === i && editingTarget?.type === 'table'"
-      [isEditingCol]="editingTableIndex === i && editingTarget?.type === 'column' ? (editingTarget?.index ?? -1) : -1"
+        [selectionMode]="selectionMode"
+        [isEditing]="editingTableIndex === i && editingTarget?.type === 'table'"
+        [isEditingCol]="editingTableIndex === i && editingTarget?.type === 'column' ? (editingTarget?.index ?? -1) : -1"
 
-      [isOutside]="outsideFlags[i] === true"
-    />
-  }
-</div>>
+        [isOutside]="outsideFlags[i] === true"
+      />
+    }
+  </div>
+</div>

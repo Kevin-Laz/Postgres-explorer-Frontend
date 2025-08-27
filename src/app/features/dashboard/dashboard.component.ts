@@ -22,8 +22,15 @@ export class DashboardComponent{
   // ———————————————————————————————————————————————————————————
   // Estado del layout (resizer del sidebar)
   // ———————————————————————————————————————————————————————————
-  sidebarWidth = 475;
-  private isResizing = false;
+  sidebarWidth = 495;
+  isResizing = false;
+
+  private resizeStartX = 0;
+  private resizeStartW = 0;
+  private pendingWidth: number | null = null;
+  private rafId: number | null = null;
+  private minSidebar = 300;
+
 
   // ———————————————————————————————————————————————————————————
   // Estado de selección en squema
@@ -127,38 +134,34 @@ export class DashboardComponent{
   onMouseDownTable(ev: MouseEvent) {
     if (!this.ghost.active) return;
     if(!this.pendingCmd) return;
-    if(isTableCreate(this.pendingCmd)){
-      // IZQUIERDO: crear si está sobre el schema
-      if (ev.button === 0 && this.ghost.overSchema) {
-        const schemaEl = this.schemaElRef.nativeElement;
-        const p = toElementCoords(ev.clientX, ev.clientY, schemaEl);
-        const xInSchema = p.x - this.ghost.width / 2;
-        const yInSchema = p.y - 40;
+    if (this.isResizing) return;
+    if (isTableCreate(this.pendingCmd) && ev.button === 0 && this.ghost.overSchema) {
+      // conversión del esquema (corrige scroll y padding)
+      const p = this.schemaView.screenToCanvas(ev.clientX, ev.clientY);
 
-        this.schemaView.placeNewTableAt({
-          x: xInSchema,
-          y: yInSchema,
-          width: this.ghost.width
-        });
-        this.cancelGhost();
-      }
+      const xInSchema = p.x - this.ghost.width / 2;
+      const yInSchema = p.y - 40;
+
+      this.schemaView.placeNewTableAt({
+        x: xInSchema,
+        y: yInSchema,
+        width: this.ghost.width
+      });
+      this.cancelGhost();
     }
 
-    else if(isTableDuplicate(this.pendingCmd)){
-      if (ev.button === 0 && this.ghost.overSchema) {
-        const schemaEl = this.schemaElRef.nativeElement;
-        const p = toElementCoords(ev.clientX, ev.clientY, schemaEl);
-        const xInSchema = p.x - this.ghost.width / 2;
-        const yInSchema = p.y - 40;
+    else if(isTableDuplicate(this.pendingCmd) && ev.button === 0 && this.ghost.overSchema){
+      const p = this.schemaView.screenToCanvas(ev.clientX, ev.clientY);
+      const xInSchema = p.x - this.ghost.width / 2;
+      const yInSchema = p.y - 40;
 
-        let newTable: Table = this.ghost.table;
-        newTable.x = xInSchema;
-        newTable.y = yInSchema;
-        newTable.width = this.ghost.width;
+      let newTable: Table = this.ghost.table;
+      newTable.x = xInSchema;
+      newTable.y = yInSchema;
+      newTable.width = this.ghost.width;
 
-        this.schemaView.duplicateTableAt(newTable);
-        this.cancelGhost();
-      }
+      this.schemaView.duplicateTableAt(newTable);
+      this.cancelGhost();
     }
 
   }
@@ -186,27 +189,70 @@ export class DashboardComponent{
   // LÓGICA DE RESIZE DEL SIDEBAR (arrastre del separador)
   // ———————————————————————————————————————————————————————————
 
+  private clamp(n: number, min: number, max: number) {
+    return Math.min(max, Math.max(min, n));
+  }
+  private maxSidebar() {
+    // deja siempre espacio mínimo para el schema
+    const MIN_SCHEMA = 500;
+    return Math.max(320, window.innerWidth - MIN_SCHEMA);
+  }
+
   // Inicia el arrastre del separador del sidebar
-  startResizing(event: MouseEvent){
+  startResizing(ev: PointerEvent) {
+    // evitar que “perfore” al schema
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    const resizerEl = ev.currentTarget as HTMLElement;
+    resizerEl.setPointerCapture?.(ev.pointerId);
+
     this.isResizing = true;
-    event.preventDefault();
+    this.resizeStartX = ev.clientX;
+    this.resizeStartW = this.sidebarWidth;
+
+    // listeners (en el propio elemento capturado o window)
+    window.addEventListener('pointermove', this.onResizeMove, { passive: true });
+    window.addEventListener('pointerup', this.onResizeEnd, { passive: true });
+    window.addEventListener('pointercancel', this.onResizeEnd, { passive: true });
   }
 
-  // Mientras se arrastra, cambia el ancho del sidebar
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
+  private onResizeMove = (ev: PointerEvent) => {
     if (!this.isResizing) return;
-    const newWidth = event.clientX;
-    if (newWidth >= 300 && newWidth <= 800) {
-      this.sidebarWidth = newWidth;
-    }
-  }
+    const dx = ev.clientX - this.resizeStartX;
 
-  // Termina el arrastre del separador
-  @HostListener('document:mouseup')
-  stopResizing() {
+    const target = this.clamp(
+      this.resizeStartW + dx,
+      this.minSidebar,
+      this.maxSidebar()
+    );
+
+    // batch en RAF para evitar reflows en exceso
+    this.pendingWidth = target;
+    if (this.rafId == null) {
+      this.rafId = requestAnimationFrame(() => {
+        if (this.pendingWidth != null) {
+          this.sidebarWidth = this.pendingWidth;
+        }
+        this.rafId = null;
+      });
+    }
+  };
+
+  private onResizeEnd = (_ev: PointerEvent) => {
+    if (!this.isResizing) return;
+
     this.isResizing = false;
-  }
+    this.pendingWidth = null;
+    if (this.rafId != null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+
+    window.removeEventListener('pointermove', this.onResizeMove as any);
+    window.removeEventListener('pointerup', this.onResizeEnd as any);
+    window.removeEventListener('pointercancel', this.onResizeEnd as any);
+  };
 
   // ———————————————————————————————————————————————————————————
   // LÓGICA DE SELECCION
