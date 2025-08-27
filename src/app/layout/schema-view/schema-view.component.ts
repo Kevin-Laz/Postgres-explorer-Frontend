@@ -3,7 +3,7 @@ import { TableBoxComponent } from '../../shared/components/table-box/table-box.c
 import { Pos, Size, Table, TableElement } from '../../data/interface/table.interface';
 import { clamp, clampToCanvas, isOutOfCanvas } from '../../core/utils/schema.utils';
 import { TableService } from '../../core/services/table.service';
-import { isTableDelete, isTableDuplicate, ToolCommand } from '../../core/actions/tool.actions';
+import { isTableDelete, isTableDuplicate, isTableEdit, ToolCommand } from '../../core/actions/tool.actions';
 
 @Component({
   selector: 'app-schema-view',
@@ -183,7 +183,12 @@ export class SchemaViewComponent implements AfterViewInit{
   }
 
   duplicateTableAt(table: Table){
-    this.tablesSvc.duplicate(this.tables, table, {w:this.CANVAS_W,h:this.CANVAS_H});
+    const cloned: Table = {
+      ...table,
+      id: crypto.randomUUID(),
+      columns: table.columns.map(c => ({ ...c })) // clona cada columna
+    };
+    this.tablesSvc.duplicate(this.tables, cloned, {w:this.CANVAS_W,h:this.CANVAS_H});
     this.selectionFinish.emit(false);
   }
 
@@ -366,6 +371,12 @@ export class SchemaViewComponent implements AfterViewInit{
 
       if(isTableDuplicate(this.pendingCmd)){
         this.selectionStart.emit([this.pendingCmd, table, event]);
+      }
+
+      if (isTableEdit(this.pendingCmd)) {
+        const idx = this.tables.findIndex(t => t.id === table.id);
+        if (idx >= 0) this.startEditing(idx, { type: 'table' });
+        this.selectionFinish.emit(false);
       }
     }
   }

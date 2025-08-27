@@ -158,6 +158,8 @@ export class TableBoxComponent implements AfterViewInit{
   //Mover tabla
   onMouseDown(event: MouseEvent) {
     if (this.disabled) return;
+    if(this.isEditing) return;
+    if(this.isEditingCol !== -1) return;
     this.isDragging = true;
     this.startX = event.clientX - this.x;
     this.startY = event.clientY - this.y;

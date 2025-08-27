@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Table, TableGhost } from '../../data/interface/table.interface';
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
 import { EventOption, EventOptionWithTool } from '../../data/interface/tool.interface';
-import { isTableCreate, isTableDelete, isTableDuplicate, mapSidebarToCommand, ToolCommand } from '../../core/actions/tool.actions';
+import { isTableCreate, isTableDelete, isTableDuplicate, isTableEdit, mapSidebarToCommand, ToolCommand } from '../../core/actions/tool.actions';
 import { centerUnderCursor, isInsideElement, snapToGrid, toElementCoords } from '../../core/utils/schema.utils';
 
 @Component({
@@ -65,14 +65,20 @@ export class DashboardComponent{
       this.startGhost(evt.evento.clientX, evt.evento.clientY);
       return;
     }
-    if(isTableDelete(cmd)){
+    else if(isTableDelete(cmd)){
       this.selectionMode = !this.selectionMode;
       this.pendingCmd = cmd;
       return;
     }
 
-    if(isTableDuplicate(cmd)){
+    else if(isTableDuplicate(cmd)){
       this.selectionMode = !this.selectionMode;
+      this.pendingCmd = cmd;
+      return;
+    }
+
+    else if(isTableEdit(cmd)){
+      this.selectionMode = true;
       this.pendingCmd = cmd;
       return;
     }
@@ -100,7 +106,11 @@ export class DashboardComponent{
     this.ghost.x = p.x ?? clientX;
     this.ghost.y = p.y ?? clientY;
     this.ghost.overSchema = false;
-    this.ghost.table = {...table};
+    this.ghost.table = {
+      ...table,
+      id: crypto.randomUUID(),
+      columns: table.columns.map(c => ({ ...c }))
+    };
     this.ghost.table.name +='_dlp';
     this.ghost.width = table.width || 180;
   }
@@ -155,7 +165,7 @@ export class DashboardComponent{
       const xInSchema = p.x - this.ghost.width / 2;
       const yInSchema = p.y - 40;
 
-      let newTable: Table = this.ghost.table;
+      let newTable: Table = {...this.ghost.table};
       newTable.x = xInSchema;
       newTable.y = yInSchema;
       newTable.width = this.ghost.width;
@@ -271,7 +281,7 @@ export class DashboardComponent{
     if(!cmd) return;
     if(isTableDuplicate(cmd)){
       if(!event.clientX || !event.clientY) return;
-      this.duplicateGhost(event.clientX, event.clientY,table);
+      this.duplicateGhost(event.clientX, event.clientY,{...table});
     }
   }
 }

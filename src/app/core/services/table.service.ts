@@ -45,7 +45,7 @@ export class TableService {
     const newTable: Table = {
       id,
       name: table.name,
-      columns: table.columns,
+      columns: [...table.columns],
       x,
       y,
       width: w
