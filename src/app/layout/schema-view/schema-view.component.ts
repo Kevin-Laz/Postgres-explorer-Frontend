@@ -4,6 +4,7 @@ import { Pos, Size, Table, TableElement } from '../../data/interface/table.inter
 import { clamp, clampToCanvas, isOutOfCanvas } from '../../core/utils/schema.utils';
 import { TableService } from '../../core/services/table.service';
 import { isTableDelete, isTableDuplicate, isTableEdit, ToolCommand } from '../../core/actions/tool.actions';
+import { validateSchema } from '../../core/validators/schema.validation';
 
 @Component({
   selector: 'app-schema-view',
@@ -17,6 +18,16 @@ export class SchemaViewComponent implements AfterViewInit{
 
   @ViewChild('viewport') viewportRef!: ElementRef<HTMLDivElement>;
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLDivElement>;
+
+  tableErrors: Record<string, string[]> = {};
+
+  runValidations() {
+    this.tableErrors = validateSchema(this.tables);
+    // setear isError en cada tabla
+    this.tables.forEach((t) => {
+      t.error = !!this.tableErrors[t.id]?.length;
+    });
+  }
 
   // ———————————————————————————————————————————————————————————
   // Config: lienzo fijo muy grande
@@ -101,6 +112,8 @@ export class SchemaViewComponent implements AfterViewInit{
     this.tables.forEach((t, i) => {
       this.lastValidPos[i] = { x: t.x ?? 0, y: t.y ?? 0 };
     });
+
+    this.runValidations();
   }
 
   ngOnDestroy() {
@@ -180,6 +193,7 @@ export class SchemaViewComponent implements AfterViewInit{
         );
     this.ensureVisibleRect(x, y, width ?? 180, 120);
     this.selectionFinish.emit(false);
+    this.runValidations();
   }
 
   duplicateTableAt(table: Table){
@@ -190,10 +204,12 @@ export class SchemaViewComponent implements AfterViewInit{
     };
     this.tablesSvc.duplicate(this.tables, cloned, {w:this.CANVAS_W,h:this.CANVAS_H});
     this.selectionFinish.emit(false);
+    this.runValidations();
   }
 
   deleteTableAt(id: string){
     this.tablesSvc.remove(this.tables, id);
+    this.runValidations();
   }
 
 
@@ -235,15 +251,18 @@ export class SchemaViewComponent implements AfterViewInit{
     this.editingValue = value;
 
     if (this.editingTarget.type === 'table') {
-      table.name = value;
+      table.name = value.trim();
     } else if (this.editingTarget.index !== undefined) {
-      table.columns[this.editingTarget.index].name = value;
+      table.columns[this.editingTarget.index].name = value.trim();
     }
+
+    this.runValidations();
   }
 
   // Actualiza el tipo de dato
   onColumnTypeChange(tableIndex: number, evt: { index: number; type: string }) {
     this.tables[tableIndex].columns[evt.index].type = evt.type;
+    this.runValidations();
   }
 
 
@@ -251,12 +270,14 @@ export class SchemaViewComponent implements AfterViewInit{
     this.editingTableIndex = null;
     this.editingTarget = null;
     this.editingValue = '';
+    this.runValidations();
   }
 
   onCancelEditing() {
     this.editingTableIndex = null;
     this.editingTarget = null;
     this.editingValue = '';
+    this.runValidations();
   }
 
   // ———————————————————————————————————————————————————————————
@@ -380,6 +401,11 @@ export class SchemaViewComponent implements AfterViewInit{
       }
     }
   }
+
+  // ———————————————————————————————————————————————————————————
+  // Logica de validación de tablas
+  // ———————————————————————————————————————————————————————————
+
 
 
 
