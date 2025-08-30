@@ -3,6 +3,7 @@ import { Table, TableElement } from '../../../data/interface/table.interface';
 import { CommonModule } from '@angular/common';
 import { PgTypeSelectComponent } from '../pg-type-select/pg-type-select.component';
 import { PgType } from '../../../data/interface/pg-types';
+import { ToolAction } from '../../../data/enums/tool.enum';
 
 @Component({
   selector: 'app-table-box',
@@ -14,7 +15,7 @@ export class TableBoxComponent implements AfterViewInit{
   @Input() table: Table | null = null;
   @Input() isEditing = false;
   @Input() isEditingCol = -1;
-  @Input() columnState = false;
+  @Input() columnState: string | boolean = false;
   @Input() x = 0;
   @Input() y = 0;
   @Input() width = 180;
@@ -36,6 +37,7 @@ export class TableBoxComponent implements AfterViewInit{
   @Output() columnTypeChange = new EventEmitter<{ index: number; type: string }>();
   @Output() tableSelected = new EventEmitter<[Table, MouseEvent]>();
   @Output() addColumn = new EventEmitter<{ index: number }>();
+  @Output() dropColumn = new EventEmitter<{ index: number }>();
 
   @ViewChild('root') rootRef!: ElementRef<HTMLDivElement>;
   @ViewChild('visibleInput') visibleInput!: ElementRef<HTMLInputElement>;
@@ -52,12 +54,6 @@ export class TableBoxComponent implements AfterViewInit{
   private startY = 0;
   private initialWidth = 0;
   private resizeStartX = 0;
-
-  // ———————————————————————————————————————————————————————————
-  // Variables para selección de tipo de dato
-  // ———————————————————————————————————————————————————————————
-
-
 
   // ———————————————————————————————————————————————————————————
   // Ciclo de vida
@@ -235,6 +231,10 @@ export class TableBoxComponent implements AfterViewInit{
   //  Logica del manejo de columnas
   // ———————————————————————————————————————————————————————————
 
+  get getAction(): typeof ToolAction{
+    return ToolAction;
+  }
+
   onAddColumnAfter(i: number, ev: MouseEvent) {
     ev.preventDefault();
     ev.stopPropagation();
@@ -250,5 +250,13 @@ export class TableBoxComponent implements AfterViewInit{
     if (this.disabled || this.selectionMode) return;
     const len = this.table?.columns?.length ?? 0;
     this.addColumn.emit({ index: len });
+  }
+
+  onDropColumnCurrent(i: number, ev: MouseEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (this.disabled || this.selectionMode) return;
+    // insertar después de la fila actual
+    this.dropColumn.emit({ index: i });
   }
 }

@@ -190,6 +190,37 @@
         opacity: 1;
         pointer-events: auto;
       }
+
+      .drop-col-btn {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%) scale(0.98);
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 1px dashed #f29393;
+        background: #fff;
+        color: #666;
+        font-size: 13px;
+        line-height: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .15s ease, transform .15s ease, box-shadow .15s ease;
+
+        &:hover {
+          box-shadow: 0 0 6px rgba(0,0,0,.12);
+          transform: translateY(-50%) scale(1.05);
+        }
+      }
+
+      &:hover .drop-col-btn {
+        opacity: 1;
+        pointer-events: auto;
+      }
     }
     .add-col-last {
       display: flex;
@@ -223,6 +254,8 @@
         border-color: #b7c1be;
       }
     }
+
+
   }
 }
 

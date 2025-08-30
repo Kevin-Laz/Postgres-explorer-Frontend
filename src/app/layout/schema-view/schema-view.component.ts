@@ -53,7 +53,7 @@ export class SchemaViewComponent implements AfterViewInit{
   // ———————————————————————————————————————————————————————————
   // Estado de selección (tabla)
   // ———————————————————————————————————————————————————————————
-  @Input() columnState = false;
+  @Input() columnState: string | boolean = false;
   @Input() selectionMode = false;
   @Input() pendingCmd : ToolCommand | null = null;
 
@@ -420,6 +420,14 @@ export class SchemaViewComponent implements AfterViewInit{
     const newName = this.generateUniqueColumnName(table);
     // Inserta en la posición pedida
     table.columns.splice(evt.index, 0, { name: newName, type: 'varchar(32)' });
+    this.columnStateFinish.emit(false);
+  }
+
+  onDropColumn(tableIndex: number, evt: { index: number }){
+    const table = this.tables[tableIndex];
+    if (!table) return;
+    if (table.columns.length <= 1) return;
+    table.columns.splice(evt.index, 1);
     this.columnStateFinish.emit(false);
   }
 

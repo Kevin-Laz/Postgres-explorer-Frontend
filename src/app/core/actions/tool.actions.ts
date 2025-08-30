@@ -1,21 +1,8 @@
 //Falta desestructurar por archivo // Por ahora todo esta en un solo lugar
 
-//Tipo de herramienta
-export enum ToolKind{
-  Table='table',
-  Column='column',
-  Relation='relation',
-  PrimaryKey='primaryKey',
-  Constraint='constraint'
-}
-export enum ToolAction {
-  Create='create',
-  Edit='edit',
-  Delete='delete',
-  Duplicate='duplicate',
-  Reorder='reorder',
-  Details='details'
-}
+import { ToolAction, ToolKind } from "../../data/enums/tool.enum";
+
+
 
 // Coordenadas absolutas del cursor (pantalla)
 export type ScreenPoint = { clientX: number; clientY: number };
@@ -100,6 +87,12 @@ export const createColumnCmd = (p: CreateColumnPayload = {}) : ColumnCreateCmd =
   payload: p
 })
 
+export const deleteColumnCmd = (id?: string): ColumnDeleteCmd =>({
+  kind: ToolKind.Column,
+  action: ToolAction.Delete,
+  payload: { id }
+})
+
 
 //Verificadores de funciones
 export const isTableCreate = (c: ToolCommand): c is TableCreateCmd =>
@@ -120,6 +113,8 @@ export const isTableDetails  = (c: ToolCommand): c is TableDetailsCmd =>
 export const isColumnCreate = (c: ToolCommand): c is ColumnCreateCmd =>
   c.kind === ToolKind.Column && c.action === ToolAction.Create
 
+export const isColumnDelete = (c: ToolCommand): c is ColumnDeleteCmd =>
+  c.kind === ToolKind.Column && c.action === ToolAction.Delete
 
 // Mapper desde el Sidebar actual
 export function mapSidebarToCommand(
@@ -153,6 +148,8 @@ export function mapSidebarToCommand(
     switch( optionAction){
       case 'createColumn':
         return createColumnCmd();
+      case 'deleteColumn':
+        return deleteColumnCmd();
       default:
         return null;
     }

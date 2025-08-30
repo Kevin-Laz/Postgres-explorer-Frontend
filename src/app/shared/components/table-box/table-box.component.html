@@ -52,16 +52,47 @@ class="table-box"
           }
         </div>
 
-        <button
-          type="button"
-          class="add-col-btn"
-          *ngIf="columnState && !selectionMode && !disabled"
-          (mousedown)="$event.stopPropagation()"
-          (click)="onAddColumnAfter(i, $event)"
-          aria-label="Añadir columna"
-          title="Añadir columna"
-        >+
-        </button>
+        @if(columnState && !selectionMode && !disabled){
+          <button
+            type="button"
+            class="add-col-btn"
+            (mousedown)="$event.stopPropagation()"
+            (click)="onAddColumnAfter(i, $event)"
+            aria-label="Añadir columna"
+            title="Añadir columna"
+          >+
+          </button>
+        }
+
+        @if(columnState && getAction.Create === columnState && !selectionMode && !disabled){
+          <button
+            type="button"
+            class="add-col-btn"
+            (mousedown)="$event.stopPropagation()"
+            (click)="onAddColumnAfter(i, $event)"
+            aria-label="Añadir columna"
+            title="Añadir columna"
+          >+
+          </button>
+        }
+        @else if(columnState && getAction.Delete === columnState && !selectionMode && !disabled){
+          <button
+            type="button"
+            class="drop-col-btn"
+            (mousedown)="$event.stopPropagation()"
+            (click)="onDropColumnCurrent(i, $event)"
+            aria-label="Quitar columna"
+            title="Quitar columna"
+          >-
+          </button>
+        }
+
+        @else if(columnState && getAction.Edit === columnState && !selectionMode && !disabled){
+
+        }
+        @else if(columnState && getAction.Reorder === columnState && !selectionMode && !disabled){
+
+        }
       </div>
     }
   </body>

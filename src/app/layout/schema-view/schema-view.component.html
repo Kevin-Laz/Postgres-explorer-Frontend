@@ -25,6 +25,7 @@
         (tableSelected)="onTableSelected($event)"
         (columnTypeChange)="onColumnTypeChange(i, $event)"
         (addColumn)="onAddColumn(i, $event)"
+        (dropColumn)="onDropColumn(i, $event)"
 
         [selectionMode]="selectionMode"
         [isEditing]="editingTableIndex === i && editingTarget?.type === 'table'"
