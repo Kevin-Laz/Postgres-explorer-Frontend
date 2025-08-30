@@ -53,12 +53,13 @@ export class SchemaViewComponent implements AfterViewInit{
   // ———————————————————————————————————————————————————————————
   // Estado de selección (tabla)
   // ———————————————————————————————————————————————————————————
-
+  @Input() columnState = false;
   @Input() selectionMode = false;
   @Input() pendingCmd : ToolCommand | null = null;
 
   @Output() selectionFinish = new EventEmitter<boolean>();
   @Output() selectionStart = new EventEmitter<[ToolCommand, Table, MouseEvent]>();
+  @Output() columnStateFinish = new EventEmitter<boolean>();
 
   // ———————————————————————————————————————————————————————————
   // Dimensiones viewport (para centrar al inicio / focus)
@@ -233,6 +234,7 @@ export class SchemaViewComponent implements AfterViewInit{
 
   // Comienza la edición
   startEditing(tableIndex: number, data: TableElement) {
+    if(this.columnState) return;
     this.editingTableIndex = tableIndex;
     this.editingTarget = data;
     const table = this.tables[tableIndex];
@@ -407,6 +409,29 @@ export class SchemaViewComponent implements AfterViewInit{
   // ———————————————————————————————————————————————————————————
 
 
+  // ———————————————————————————————————————————————————————————
+  // Logica de columnas
+  // ———————————————————————————————————————————————————————————
 
+  onAddColumn(tableIndex: number, evt: { index: number }) {
+    const table = this.tables[tableIndex];
+    if (!table) return;
 
+    const newName = this.generateUniqueColumnName(table);
+    // Inserta en la posición pedida
+    table.columns.splice(evt.index, 0, { name: newName, type: 'varchar(32)' });
+    this.columnStateFinish.emit(false);
+  }
+
+  private generateUniqueColumnName(table: Table): string {
+    const base = 'col';
+    const used = new Set(table.columns.map(c => c.name.toLowerCase()));
+    let n = table.columns.length + 1;
+    let name = `${base}${n}`;
+    while (used.has(name.toLowerCase())) {
+      n++;
+      name = `${base}${n}`;
+    }
+    return name;
+  }
 }

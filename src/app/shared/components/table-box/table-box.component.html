@@ -51,6 +51,17 @@ class="table-box"
             <span>{{ col.type }}</span>
           }
         </div>
+
+        <button
+          type="button"
+          class="add-col-btn"
+          *ngIf="columnState && !selectionMode && !disabled"
+          (mousedown)="$event.stopPropagation()"
+          (click)="onAddColumnAfter(i, $event)"
+          aria-label="Añadir columna"
+          title="Añadir columna"
+        >+
+        </button>
       </div>
     }
   </body>

@@ -7,8 +7,10 @@
   #schema
   [selectionMode]="selectionMode"
   [pendingCmd]="pendingCmd"
+  [columnState]="columnState"
   (selectionFinish)="selectionFinish($event)"
-  (selectionStart)="selectionStart($event)"></app-schema-view>
+  (selectionStart)="selectionStart($event)"
+  (columnStateFinish)="setColumnState($event)"></app-schema-view>
 
   @if(ghost.active){
     <app-table-box

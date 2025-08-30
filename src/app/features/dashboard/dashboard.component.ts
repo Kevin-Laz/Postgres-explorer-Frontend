@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Table, TableGhost } from '../../data/interface/table.interface';
 import { TableBoxComponent } from '../../shared/components/table-box/table-box.component';
 import { EventOption, EventOptionWithTool } from '../../data/interface/tool.interface';
-import { isTableCreate, isTableDelete, isTableDuplicate, isTableEdit, mapSidebarToCommand, ToolCommand } from '../../core/actions/tool.actions';
+import { isColumnCreate, isTableCreate, isTableDelete, isTableDuplicate, isTableEdit, mapSidebarToCommand, ToolCommand } from '../../core/actions/tool.actions';
 import { centerUnderCursor, isInsideElement, snapToGrid, toElementCoords } from '../../core/utils/schema.utils';
 
 @Component({
@@ -38,6 +38,17 @@ export class DashboardComponent{
 
   selectionMode = false;
   pendingCmd: ToolCommand | null = null;
+
+  // ———————————————————————————————————————————————————————————
+  // Estado de columnas
+  // ———————————————————————————————————————————————————————————
+
+  columnState = false;
+
+  setColumnState(bol: boolean){
+    this.columnState = bol;
+  }
+
   // ———————————————————————————————————————————————————————————
   // Estado del “ghost” (tabla temporal mientras se crea)
   // ———————————————————————————————————————————————————————————
@@ -58,6 +69,8 @@ export class DashboardComponent{
   onSidebarAction(evt: EventOptionWithTool){
     const cmd: ToolCommand | null = mapSidebarToCommand(evt.tool, evt.action, evt.evento);
     if(!cmd) return;
+
+    // Tool → Tabla
     if (isTableCreate(cmd) && !this.ghost.active) {
       this.selectionMode = false;
       // Inicia el ghost justo donde se clickeó:
@@ -78,10 +91,17 @@ export class DashboardComponent{
     }
 
     else if(isTableEdit(cmd)){
-      this.selectionMode = true;
+      this.selectionMode = !this.selectionMode;
       this.pendingCmd = cmd;
       return;
     }
+
+    // Tool → Columna
+    else if(isColumnCreate(cmd)){
+      this.columnState = !this.columnState;
+      return;
+    }
+
     return;
   }
 
@@ -176,10 +196,11 @@ export class DashboardComponent{
 
   }
 
-  // ESC: cancela creación del ghost
+  // ESC: cancela acciones
   @HostListener('document:keydown.escape')
   onEsc() {
     if (this.ghost.active) this.cancelGhost();
+    if (this.columnState) this.setColumnState(false);
     this.selectionFinish(false);
   }
 

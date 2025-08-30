@@ -24,11 +24,12 @@
         (editCancel)="onCancelEditing()"
         (tableSelected)="onTableSelected($event)"
         (columnTypeChange)="onColumnTypeChange(i, $event)"
+        (addColumn)="onAddColumn(i, $event)"
 
         [selectionMode]="selectionMode"
         [isEditing]="editingTableIndex === i && editingTarget?.type === 'table'"
         [isEditingCol]="editingTableIndex === i && editingTarget?.type === 'column' ? (editingTarget?.index ?? -1) : -1"
-
+        [columnState]="columnState"
         [isOutside]="outsideFlags[i] === true"
       />
     }

@@ -14,7 +14,7 @@ export class TableBoxComponent implements AfterViewInit{
   @Input() table: Table | null = null;
   @Input() isEditing = false;
   @Input() isEditingCol = -1;
-
+  @Input() columnState = false;
   @Input() x = 0;
   @Input() y = 0;
   @Input() width = 180;
@@ -35,6 +35,7 @@ export class TableBoxComponent implements AfterViewInit{
   @Output() dragEnd = new EventEmitter<void>();
   @Output() columnTypeChange = new EventEmitter<{ index: number; type: string }>();
   @Output() tableSelected = new EventEmitter<[Table, MouseEvent]>();
+  @Output() addColumn = new EventEmitter<{ index: number }>();
 
   @ViewChild('root') rootRef!: ElementRef<HTMLDivElement>;
   @ViewChild('visibleInput') visibleInput!: ElementRef<HTMLInputElement>;
@@ -228,5 +229,26 @@ export class TableBoxComponent implements AfterViewInit{
       param: type.match(/\((.*?)\)/)?.[1]
     }
     return formatType;
+  }
+
+  // ———————————————————————————————————————————————————————————
+  //  Logica del manejo de columnas
+  // ———————————————————————————————————————————————————————————
+
+  onAddColumnAfter(i: number, ev: MouseEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (this.disabled || this.selectionMode) return;
+    // insertar después de la fila actual
+    this.addColumn.emit({ index: i + 1 });
+  }
+
+  // añadir columna al final
+  onAddColumnAtEnd(ev: MouseEvent) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (this.disabled || this.selectionMode) return;
+    const len = this.table?.columns?.length ?? 0;
+    this.addColumn.emit({ index: len });
   }
 }

@@ -36,6 +36,16 @@ export type DuplicateTablePayload = {
 };
 export type DetailsTablePayload   = { id?: string };
 
+// COLUMN: payloads
+export type CreateColumnPayload = {
+  tableId?: string;
+  name?: string;
+  type?: string;
+  index?: number;
+}
+export type EditColumnPayload = { id?: string}
+export type DeleteColumnPayload = { id?: string}
+
 
 // TABLE: comandos
 export type TableCreateCmd   = { kind: ToolKind.Table; action: ToolAction.Create;   payload: CreateTablePayload };
@@ -44,6 +54,10 @@ export type TableDeleteCmd   = { kind: ToolKind.Table; action: ToolAction.Delete
 export type TableDuplicateCmd= { kind: ToolKind.Table; action: ToolAction.Duplicate;payload: DuplicateTablePayload };
 export type TableDetailsCmd  = { kind: ToolKind.Table; action: ToolAction.Details;  payload: DetailsTablePayload };
 
+// COLUMN: comandos
+export type ColumnCreateCmd = { kind: ToolKind.Column; action: ToolAction.Create; payload: CreateColumnPayload}
+export type ColumnEditCmd = { kind: ToolKind.Column; action: ToolAction.Edit; payload: EditColumnPayload}
+export type ColumnDeleteCmd = { kind: ToolKind.Column; action: ToolAction.Delete; payload: DeleteColumnPayload}
 
 // Unión de todos (por ahora solo Table)
 export type ToolCommand =
@@ -51,7 +65,10 @@ export type ToolCommand =
   | TableEditCmd
   | TableDeleteCmd
   | TableDuplicateCmd
-  | TableDetailsCmd;
+  | TableDetailsCmd
+  | ColumnCreateCmd
+  | ColumnEditCmd
+  | ColumnDeleteCmd
 
 
 // Action creators (helpers)
@@ -77,6 +94,12 @@ export const detailsTableCmd = (id?: string): TableDetailsCmd    => ({
   kind: ToolKind.Table, action: ToolAction.Details, payload: { id }
 });
 
+export const createColumnCmd = (p: CreateColumnPayload = {}) : ColumnCreateCmd =>({
+  kind: ToolKind.Column,
+  action: ToolAction.Create,
+  payload: p
+})
+
 
 //Verificadores de funciones
 export const isTableCreate = (c: ToolCommand): c is TableCreateCmd =>
@@ -93,6 +116,9 @@ export const isTableDuplicate= (c: ToolCommand): c is TableDuplicateCmd =>
 
 export const isTableDetails  = (c: ToolCommand): c is TableDetailsCmd =>
   c.kind===ToolKind.Table && c.action===ToolAction.Details;
+
+export const isColumnCreate = (c: ToolCommand): c is ColumnCreateCmd =>
+  c.kind === ToolKind.Column && c.action === ToolAction.Create
 
 
 // Mapper desde el Sidebar actual
@@ -121,6 +147,17 @@ export function mapSidebarToCommand(
     }
   }
 
-  // Falta adicionar para columna/relación/clave/restricción
+  // Herramienta columna
+
+  else if ( tool === 'columna'){
+    switch( optionAction){
+      case 'createColumn':
+        return createColumnCmd();
+      default:
+        return null;
+    }
+  }
+
+  // Falta adicionar para relación/clave/restricción
   return null;
 }
