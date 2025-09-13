@@ -12,6 +12,7 @@ export interface Tool{
 }
 
 export interface EventOption{
+  name: string;
   action: string;
   evento: MouseEvent;
 }

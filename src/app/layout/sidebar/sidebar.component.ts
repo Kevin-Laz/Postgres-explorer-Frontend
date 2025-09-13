@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EventOption, EventOptionWithTool, Tool, ToolOption, TOOLS } from '../../data/interface/tool.interface';
 
@@ -12,7 +12,7 @@ import { EventOption, EventOptionWithTool, Tool, ToolOption, TOOLS } from '../..
 export class SidebarComponent {
   // Emite la acción seleccionada junto con el tool activo
   @Output() actionSelected = new EventEmitter<EventOptionWithTool>();
-
+  @Input() isOptionFixed = false;
 
   // ———————————————————————————————————————————————————————————
   // Estado de UI (tabs, inputs)
@@ -38,6 +38,8 @@ export class SidebarComponent {
 
   // Si el tool está “fijado” (clic) o solo en hover
   isToolFixed = false;
+
+  option_selected: string | null = null;
 
   // ———————————————————————————————————————————————————————————
   // Handlers de interacción con Tools (hover / select / clear)
@@ -81,6 +83,7 @@ export class SidebarComponent {
   onClickOption(evt: EventOption){
     //Verificar tool y option
     if(!this.tool_selected) return;
+    this.option_selected = evt.name;
     this.actionSelected.emit({ ...evt, tool :this.tool_selected})
   }
 

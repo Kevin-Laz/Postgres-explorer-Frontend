@@ -39,6 +39,12 @@ export class DashboardComponent{
   selectionMode = false;
   pendingCmd: ToolCommand | null = null;
 
+  get isOptionFixed(): boolean {
+    return this.selectionMode;
+  }
+
+
+
   // ———————————————————————————————————————————————————————————
   // Estado de columnas
   // ———————————————————————————————————————————————————————————
