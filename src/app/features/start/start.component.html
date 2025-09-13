@@ -1,6 +1,6 @@
 <div class="content">
   <h2>Conectar a Base de Datos PostgreSQL</h2>
-  <main class="">
+  <main>
     <form [formGroup]="dbForm" (ngSubmit)="onSubmit()">
       <label>Cadena de conexión: </label>
       <input
@@ -17,4 +17,5 @@
       <button type="submit">Conectar</button>
     </form>
   </main>
+  <span class="span-continue" (click)="offlineDB()">Continuar sin cadena de conexión</span>
 </div>

@@ -38,4 +38,9 @@ export class StartComponent {
       }
     })
   }
+
+  offlineDB(){
+    this.dbContext.setConnection('none');
+    this.router.navigate(['/dashboard']);
+  }
 }
