@@ -39,11 +39,6 @@ export class DashboardComponent{
   selectionMode = false;
   pendingCmd: ToolCommand | null = null;
 
-  get isOptionFixed(): boolean {
-    return this.selectionMode;
-  }
-
-
 
   // ———————————————————————————————————————————————————————————
   // Estado de columnas
@@ -53,6 +48,10 @@ export class DashboardComponent{
 
   setColumnState(state: boolean | string){
     this.columnState = state;
+  }
+
+  get isOptionFixed(): boolean {
+    return (!!this.selectionMode || !!this.columnState);
   }
 
   // ———————————————————————————————————————————————————————————
@@ -109,6 +108,13 @@ export class DashboardComponent{
     }
 
     return;
+  }
+
+  // Cancelación de tools y opcions
+  cancelActions(){
+    this.pendingCmd = null;
+    this.selectionMode = false;
+    this.setColumnState(false);
   }
 
   // ———————————————————————————————————————————————————————————

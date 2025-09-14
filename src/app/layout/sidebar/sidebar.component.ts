@@ -12,6 +12,7 @@ import { EventOption, EventOptionWithTool, Tool, ToolOption, TOOLS } from '../..
 export class SidebarComponent {
   // Emite la acción seleccionada junto con el tool activo
   @Output() actionSelected = new EventEmitter<EventOptionWithTool>();
+  @Output() cancelAction = new EventEmitter<void>();
   @Input() isOptionFixed = false;
 
   // ———————————————————————————————————————————————————————————
@@ -54,6 +55,7 @@ export class SidebarComponent {
   }
 
   selectTool(tool: Tool): void {
+    this.cancelAction.emit();
     if (this.tool_selected === tool.name && this.isToolFixed) {
       // Deseleccionar si ya está seleccionada
       this.isToolFixed = false;
@@ -65,6 +67,7 @@ export class SidebarComponent {
       this.isToolFixed = true;
       this.setSelectedTool(tool.name);
       this.setActiveOptions(tool.options);
+      this.option_selected = null; // al cambia de tool la opcion seleccionada debe deseleccionarse
     }
   }
 
@@ -104,6 +107,7 @@ export class SidebarComponent {
   // Limpia opciones activas
   private resetOptions(): void {
     this.options_active = null;
+    this.option_selected = null;
   }
 
 }

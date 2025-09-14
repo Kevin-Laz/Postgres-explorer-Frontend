@@ -1,6 +1,6 @@
 <div #root class="dashboard-shell" [class.resizing]="isResizing" (mousemove)="onMouseMoveTable($event)" (mousedown)="onMouseDownTable($event)" (contextmenu)="onContextMenu($event)">
   <div class="sidebar-resizable" [ngStyle] = "{ width: sidebarWidth + 'px' }">
-    <app-sidebar (actionSelected)="onSidebarAction($event)" [isOptionFixed]="isOptionFixed"></app-sidebar>
+    <app-sidebar (actionSelected)="onSidebarAction($event)" (cancelAction)="cancelActions()" [isOptionFixed]="isOptionFixed"></app-sidebar>
     <div class="resizer" (pointerdown)="startResizing($event)"></div>
   </div>
   <app-schema-view
